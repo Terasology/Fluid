@@ -82,7 +82,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     }
 
     @Override
-    public boolean removeFluid(EntityRef container, String fluidType, float volume) {
+    public boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
         FluidInventoryComponent fluidInventory = container.getComponent(FluidInventoryComponent.class);
         if (fluidInventory == null) {
             return false;
