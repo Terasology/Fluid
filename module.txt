@@ -1,0 +1,9 @@
+{
+    "id" : "Fluid",
+    "version" : "0.1.0",
+    "author" : "Marcin Sciesinski <marcins78@gmail.com>",
+    "displayName" : "Fluid",
+    "description" : "",
+    "dependencies" : [],
+    "isServerSideOnly" : false
+}
