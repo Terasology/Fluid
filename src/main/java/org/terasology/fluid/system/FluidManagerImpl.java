@@ -82,6 +82,44 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     }
 
     @Override
+    public boolean addFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
+        FluidInventoryComponent fluidInventory = container.getComponent(FluidInventoryComponent.class);
+        if (fluidInventory == null) {
+            return false;
+        }
+
+        EntityRef fluidEntity = fluidInventory.fluidSlots.get(slot);
+        FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
+        if (fluid != null && fluid.fluidType.equals(fluidType)) {
+            float maximumVolume = fluidInventory.maximumVolumes.get(slot);
+            if (fluid.volume + volume <= maximumVolume) {
+                fluid.volume += volume;
+                fluidEntity.saveComponent(fluid);
+                return true;
+            }
+        }
+
+        if (fluid == null) {
+            float maximumVolume = fluidInventory.maximumVolumes.get(slot);
+            if (volume <= maximumVolume) {
+                EntityManager entityManager = CoreRegistry.get(EntityManager.class);
+
+                FluidComponent fluidComponent = new FluidComponent();
+                fluidComponent.fluidType = fluidType;
+                fluidComponent.volume = volume;
+
+                EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                fluidInventory.fluidSlots.set(slot, newFluidEntity);
+                container.saveComponent(fluidInventory);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
         FluidInventoryComponent fluidInventory = container.getComponent(FluidInventoryComponent.class);
         if (fluidInventory == null) {

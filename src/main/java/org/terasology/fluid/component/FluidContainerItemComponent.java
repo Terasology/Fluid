@@ -10,7 +10,7 @@ import org.terasology.math.Region3i;
 @ItemDifferentiating
 public class FluidContainerItemComponent implements Component {
     public String fluidType;
-    public float litres;
+    public float volume;
     public Region3i fluidRenderRect;
 
     @Override
@@ -24,7 +24,7 @@ public class FluidContainerItemComponent implements Component {
 
         FluidContainerItemComponent that = (FluidContainerItemComponent) o;
 
-        if (Float.compare(that.litres, litres) != 0) {
+        if (Float.compare(that.volume, volume) != 0) {
             return false;
         }
         if (fluidRenderRect != null ? !fluidRenderRect.equals(that.fluidRenderRect) : that.fluidRenderRect != null) {
