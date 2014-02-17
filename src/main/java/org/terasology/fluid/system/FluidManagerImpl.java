@@ -90,19 +90,33 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
 
         List<EntityRef> fluidSlots = fluidInventory.fluidSlots;
         for (int i = 0; i < fluidSlots.size(); i++) {
-            EntityRef fluidEntity = fluidSlots.get(i);
-            FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
-            if (fluid != null && fluid.fluidType.equals(fluidType) && fluid.volume >= volume) {
-                if (fluid.volume == volume) {
-                    fluidEntity.destroy();
-                    fluidSlots.set(i, EntityRef.NULL);
-                    container.saveComponent(fluidInventory);
-                } else {
-                    fluid.volume -= volume;
-                    fluidEntity.saveComponent(fluid);
-                }
+            if (removeFluid(instigator, container, i, fluidType, volume)) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
+        FluidInventoryComponent fluidInventory = container.getComponent(FluidInventoryComponent.class);
+        if (fluidInventory == null) {
+            return false;
+        }
+
+        EntityRef fluidEntity = fluidInventory.fluidSlots.get(slot);
+        FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
+        if (fluid != null && fluid.fluidType.equals(fluidType) && fluid.volume >= volume) {
+            if (fluid.volume == volume) {
+                fluidEntity.destroy();
+                fluidInventory.fluidSlots.set(slot, EntityRef.NULL);
+                container.saveComponent(fluidInventory);
+            } else {
+                fluid.volume -= volume;
+                fluidEntity.saveComponent(fluid);
+            }
+            return true;
         }
 
         return false;
