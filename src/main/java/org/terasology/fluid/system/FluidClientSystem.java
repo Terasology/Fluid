@@ -8,7 +8,9 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.math.Rect2i;
 import org.terasology.math.Region3i;
+import org.terasology.math.Vector2i;
 import org.terasology.registry.In;
+import org.terasology.rendering.nui.Canvas;
 import org.terasology.rendering.nui.layers.ingame.inventory.BeforeInventoryCellRendered;
 
 /**
@@ -25,8 +27,14 @@ public class FluidClientSystem extends BaseComponentSystem {
         if (fluidType != null) {
             Region3i renderRect = component.fluidRenderRect;
             FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(fluidType);
-            fluidRenderer.renderFluid(event.getCanvas(),
-                    Rect2i.createFromMinAndMax(renderRect.min().x, renderRect.min().y, renderRect.max().x, renderRect.max().y));
+            Canvas canvas = event.getCanvas();
+            Vector2i size = canvas.size();
+            fluidRenderer.renderFluid(canvas,
+                    Rect2i.createFromMinAndMax(
+                            Math.round(size.x * renderRect.min().x / 32f),
+                            Math.round(size.y * renderRect.min().y / 32f),
+                            Math.round(size.x * renderRect.max().x / 32f),
+                            Math.round(size.y * renderRect.max().y / 32f)));
         }
     }
 }
