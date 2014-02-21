@@ -8,4 +8,6 @@ import org.terasology.rendering.nui.Canvas;
  */
 public interface FluidRenderer {
     void renderFluid(Canvas canvas, Rect2i region);
+
+    String getFluidName();
 }

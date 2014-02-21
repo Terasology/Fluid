@@ -9,13 +9,20 @@ import org.terasology.rendering.nui.Canvas;
  */
 public class TextureFluidRenderer implements FluidRenderer {
     private Texture texture;
+    private String fluidName;
 
-    public TextureFluidRenderer(Texture texture) {
+    public TextureFluidRenderer(Texture texture, String fluidName) {
         this.texture = texture;
+        this.fluidName = fluidName;
     }
 
     @Override
     public void renderFluid(Canvas canvas, Rect2i region) {
         canvas.drawTexture(texture, region);
+    }
+
+    @Override
+    public String getFluidName() {
+        return fluidName;
     }
 }
