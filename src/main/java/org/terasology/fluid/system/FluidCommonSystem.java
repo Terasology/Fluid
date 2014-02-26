@@ -21,6 +21,6 @@ public class FluidCommonSystem extends BaseComponentSystem {
     @Override
     public void preBegin() {
         AssetUri waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
-        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(Assets.getTexture(waterTextureUri.toSimpleString()), "water"), LiquidType.WATER);
+        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(Assets.getTexture(waterTextureUri.toNormalisedSimpleString()), "water"), LiquidType.WATER);
     }
 }
