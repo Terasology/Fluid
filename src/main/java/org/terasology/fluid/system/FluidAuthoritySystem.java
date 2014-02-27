@@ -1,5 +1,7 @@
 package org.terasology.fluid.system;
 
+import org.terasology.asset.Asset;
+import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -43,8 +45,14 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     if (removeEvent.isConsumed()) {
                         EntityRef removedItem = removeEvent.getRemovedItem();
                         FluidContainerItemComponent resultContainer = removedItem.getComponent(FluidContainerItemComponent.class);
-                        resultContainer.fluidType = fluidRegistry.getFluidType(liquid.getType());
+                        String fluidType = fluidRegistry.getFluidType(liquid.getType());
+                        resultContainer.fluidType = fluidType;
                         removedItem.saveComponent(resultContainer);
+
+                        ItemComponent itemComp = removedItem.getComponent(ItemComponent.class);
+                        itemComp.icon = Assets.getTexture("Fluid", "fluid(" + ((Asset) itemComp.icon).getURI().toSimpleString() + ")(" + fluidType + ")");
+                        removedItem.saveComponent(itemComp);
+
                         GiveItemAction giveItem = new GiveItemAction(event.getInstigator(), removedItem);
                         owner.send(giveItem);
                         if (!giveItem.isConsumed()) {

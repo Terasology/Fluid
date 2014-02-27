@@ -17,6 +17,11 @@ public class TextureFluidRenderer implements FluidRenderer {
     }
 
     @Override
+    public Texture getTexture() {
+        return texture;
+    }
+
+    @Override
     public void renderFluid(Canvas canvas, Rect2i region) {
         canvas.drawTexture(texture, region);
     }
