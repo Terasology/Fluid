@@ -46,7 +46,7 @@ public class FluidCommonSystem extends BaseComponentSystem {
         public AssetUri resolve(String partialUri) {
 
             String[] parts = partialUri.split("\\(", 2);
-            if (parts.length == 2) {
+            if (parts.length > 1) {
                 AssetUri uri = Assets.resolveAssetUri(AssetType.TEXTURE, parts[0]);
                 if (uri != null) {
                     return new AssetUri(AssetType.TEXTURE, uri.getModuleName(), partialUri);
