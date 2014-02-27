@@ -76,7 +76,7 @@ public class FluidCommonSystem extends BaseComponentSystem {
             final String[] splitMin = minPerc.split(",");
             final String[] splitSize = sizePerc.split(",");
 
-            TextureRegion containerTexture = Assets.getTextureRegion(split[1]);
+            TextureRegion containerTexture = Assets.getTextureRegion(textureWithHole);
 
             TextureData containerTextureData = containerTexture.getTexture().getData();
             ByteBuffer buffer = containerTextureData.getBuffers()[0];
@@ -109,15 +109,15 @@ public class FluidCommonSystem extends BaseComponentSystem {
                         final int fluidX = (x - min.x) % fluidWidth;
                         final int fluidY = (y - min.y) % fluidHeight;
 
-                        byte fluidR = fluidBuffer.get((fluidPosY + fluidY) * stride + (fluidPosX + fluidX) * 4);
-                        byte fluidG = fluidBuffer.get((fluidPosY + fluidY) * stride + (fluidPosX + fluidX) * 4 + 1);
-                        byte fluidB = fluidBuffer.get((fluidPosY + fluidY) * stride + (fluidPosX + fluidX) * 4 + 2);
-                        byte fluidA = fluidBuffer.get((fluidPosY + fluidY) * stride + (fluidPosX + fluidX) * 4 + 3);
+                        int fluidR = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4));
+                        int fluidG = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 1));
+                        int fluidB = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 2));
+                        int fluidA = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 3));
 
-                        byte imageR = buffer.get((posY + y) * stride + (posX + x) * 4);
-                        byte imageG = buffer.get((posY + y) * stride + (posX + x) * 4 + 1);
-                        byte imageB = buffer.get((posY + y) * stride + (posX + x) * 4 + 2);
-                        byte imageA = buffer.get((posY + y) * stride + (posX + x) * 4 + 3);
+                        int imageR = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4));
+                        int imageG = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 1));
+                        int imageB = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 2));
+                        int imageA = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 3));
 
                         data.put(mergeColor(fluidR, imageR, fluidA / 255f, imageA / 255f));
                         data.put(mergeColor(fluidG, imageG, fluidA / 255f, imageA / 255f));
@@ -136,7 +136,7 @@ public class FluidCommonSystem extends BaseComponentSystem {
             return factory.buildAsset(uri, new TextureData(width, height, new ByteBuffer[]{data}, Texture.WrapMode.REPEAT, Texture.FilterMode.NEAREST));
         }
 
-        private byte mergeColor(byte background, byte foreground, float backgroundAlpha, float foregroundAlpha) {
+        private byte mergeColor(int background, int foreground, float backgroundAlpha, float foregroundAlpha) {
             return UnsignedBytes.checkedCast(TeraMath.clamp(
                     Math.round(foreground * foregroundAlpha + (background * backgroundAlpha * (1 - foregroundAlpha))), 0, 255));
         }
