@@ -7,9 +7,8 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.logic.common.ActivateEvent;
+import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
-import org.terasology.logic.inventory.action.GiveItemAction;
-import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
@@ -26,6 +25,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private WorldProvider worldProvider;
     @In
     private FluidRegistry fluidRegistry;
+    @In
+    private InventoryManager inventoryManager;
 
     @ReceiveEvent(components = {ItemComponent.class})
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
@@ -38,17 +39,13 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 LiquidData liquid = worldProvider.getLiquid(new Vector3i(location, 0.5f));
                 if (liquid != null && liquid.getType() != null && liquid.getDepth() > 0) {
                     EntityRef owner = item.getOwner();
-                    RemoveItemAction removeEvent = new RemoveItemAction(event.getInstigator(), item, false, 1);
-                    owner.send(removeEvent);
-                    if (removeEvent.isConsumed()) {
-                        EntityRef removedItem = removeEvent.getRemovedItem();
+                    final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+                    if (removedItem != null) {
                         String fluidType = fluidRegistry.getFluidType(liquid.getType());
 
                         FluidUtils.setFluidForContainerItem(removedItem, fluidType);
 
-                        GiveItemAction giveItem = new GiveItemAction(event.getInstigator(), removedItem);
-                        owner.send(giveItem);
-                        if (!giveItem.isConsumed()) {
+                        if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                             removedItem.destroy();
                         }
                     }
