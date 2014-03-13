@@ -1,6 +1,5 @@
 package org.terasology.fluid.system;
 
-import com.google.common.primitives.UnsignedBytes;
 import org.terasology.asset.AssetFactory;
 import org.terasology.asset.AssetManager;
 import org.terasology.asset.AssetResolver;
@@ -9,18 +8,16 @@ import org.terasology.asset.AssetUri;
 import org.terasology.asset.Assets;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.math.Rect2i;
-import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureData;
-import org.terasology.rendering.assets.texture.TextureRegion;
 import org.terasology.rendering.assets.texture.TextureUtil;
 import org.terasology.world.liquid.LiquidType;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 /**
@@ -69,29 +66,14 @@ public class FluidCommonSystem extends BaseComponentSystem {
             String minPerc = split[3].substring(0, split[3].length() - 1);
             String sizePerc = split[4].substring(0, split[4].length() - 1);
 
-            final TextureRegion fluidTexture = CoreRegistry.get(FluidRegistry.class).getFluidRenderer(fluidType).getTexture();
-            final TextureData fluidTextureData = fluidTexture.getTexture().getData();
-            final ByteBuffer fluidBuffer = fluidTextureData.getBuffers()[0];
+            BufferedImage fluidTexture = TextureUtil.convertToImage(CoreRegistry.get(FluidRegistry.class).getFluidRenderer(fluidType).getTexture());
 
             final String[] splitMin = minPerc.split(",");
             final String[] splitSize = sizePerc.split(",");
 
-            TextureRegion containerTexture = Assets.getTextureRegion(textureWithHole);
-
-            TextureData containerTextureData = containerTexture.getTexture().getData();
-            ByteBuffer buffer = containerTextureData.getBuffers()[0];
-
-            int stride = containerTextureData.getWidth() * 4;
+            BufferedImage containerTexture = TextureUtil.convertToImage(Assets.getTextureRegion(textureWithHole));
             int width = containerTexture.getWidth();
             int height = containerTexture.getHeight();
-            int posX = containerTexture.getPixelRegion().minX();
-            int posY = containerTexture.getPixelRegion().minY();
-
-            int fluidStride = fluidTextureData.getWidth() * 4;
-            int fluidWidth = fluidTexture.getWidth();
-            int fluidHeight = fluidTexture.getHeight();
-            int fluidPosX = fluidTexture.getPixelRegion().minX();
-            int fluidPosY = fluidTexture.getPixelRegion().minY();
 
             Vector2i min = new Vector2i(
                     Math.round(Float.parseFloat(splitMin[0]) * width),
@@ -100,58 +82,26 @@ public class FluidCommonSystem extends BaseComponentSystem {
                     Math.round(Float.parseFloat(splitSize[0]) * width),
                     Math.round(Float.parseFloat(splitSize[1]) * height));
 
-            Rect2i fillArea = Rect2i.createFromMinAndSize(min, size);
-
-            ByteBuffer data = ByteBuffer.allocateDirect(4 * width * height);
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (fillArea.contains(x, y)) {
-                        final int fluidX = (x - min.x) % fluidWidth;
-                        final int fluidY = (y - min.y) % fluidHeight;
-
-                        int fluidR = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4));
-                        int fluidG = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 1));
-                        int fluidB = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 2));
-                        int fluidA = UnsignedBytes.toInt(fluidBuffer.get((fluidPosY + fluidY) * fluidStride + (fluidPosX + fluidX) * 4 + 3));
-
-                        int imageR = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4));
-                        int imageG = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 1));
-                        int imageB = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 2));
-                        int imageA = UnsignedBytes.toInt(buffer.get((posY + y) * stride + (posX + x) * 4 + 3));
-
-                        data.put(mergeColor(fluidR, imageR, fluidA / 255f, imageA / 255f));
-                        data.put(mergeColor(fluidG, imageG, fluidA / 255f, imageA / 255f));
-                        data.put(mergeColor(fluidB, imageB, fluidA / 255f, imageA / 255f));
-                        data.put(mergeAlpha(fluidA / 255f, imageA / 255f));
-                    } else {
-                        data.put(buffer.get((posY + y) * stride + (posX + x) * 4));
-                        data.put(buffer.get((posY + y) * stride + (posX + x) * 4 + 1));
-                        data.put(buffer.get((posY + y) * stride + (posX + x) * 4 + 2));
-                        data.put(buffer.get((posY + y) * stride + (posX + x) * 4 + 3));
+            BufferedImage result = new BufferedImage(containerTexture.getWidth(), containerTexture.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics = (Graphics2D) result.getGraphics();
+            try {
+                // Draw fluid texture tiled in the designated space
+                for (int x = min.x; x < min.x + size.x; x += size.x) {
+                    for (int y = min.y; y < min.y + size.y; y += size.y) {
+                        int fluidTileWidth = Math.min(size.x, size.x + min.x - x);
+                        int fluidTileHeight = Math.min(size.y, size.y + min.y - y);
+                        graphics.drawImage(fluidTexture, x, y, x + fluidTileWidth, y + fluidTileHeight, 0, 0, fluidTileWidth, fluidTileHeight, null);
                     }
                 }
+                // Draw the container texture on top of the fluid
+                graphics.drawImage(containerTexture, 0, 0, null);
+            } finally {
+                graphics.dispose();
             }
-            data.rewind();
 
-            return factory.buildAsset(uri, new TextureData(width, height, new ByteBuffer[]{data}, Texture.WrapMode.REPEAT, Texture.FilterMode.NEAREST));
-        }
+            final ByteBuffer resultBuffer = TextureUtil.convertToByteBuffer(result);
 
-        private byte mergeColor(int background, int foreground, float backgroundAlpha, float foregroundAlpha) {
-            return UnsignedBytes.checkedCast(TeraMath.clamp(
-                    Math.round(foreground * foregroundAlpha + (background * backgroundAlpha * (1 - foregroundAlpha))), 0, 255));
-        }
-
-        private byte mergeAlpha(float backgroundAlpha, float foregroundAlpha) {
-            return UnsignedBytes.checkedCast(TeraMath.clamp(
-                    Math.round(255f * (foregroundAlpha + (backgroundAlpha * (1 - foregroundAlpha)))), 0, 255));
-        }
-
-        public byte[] copy(ByteBuffer b) {
-            byte[] oldBytes = b.array();
-            byte[] copiedBytes = new byte[oldBytes.length];
-            // (Object src, int srcPos, Object dest, int destPos, int length)
-            System.arraycopy(oldBytes, 0, copiedBytes, 0, oldBytes.length);
-            return copiedBytes;
+            return factory.buildAsset(uri, new TextureData(width, height, new ByteBuffer[]{resultBuffer}, Texture.WrapMode.REPEAT, Texture.FilterMode.NEAREST));
         }
     }
 }
