@@ -31,12 +31,14 @@ public final class FluidUtils {
         container.saveComponent(resultContainer);
 
         if (fluidType != null) {
-            if (resultContainer.textureWithWhole instanceof Asset) {
+            if (resultContainer.textureWithHole instanceof Asset) {
                 ItemComponent itemComp = container.getComponent(ItemComponent.class);
-                itemComp.icon = Assets.getTexture("Fluid", "fluid(" + ((Asset) resultContainer.textureWithWhole).getURI().toSimpleString() + ")" +
-                        "(" + fluidType + ")" +
-                        "(" + resultContainer.fluidMinPerc.x + "," + resultContainer.fluidMinPerc.y + ")" +
-                        "(" + resultContainer.fluidSizePerc.x + "," + resultContainer.fluidSizePerc.y + ")");
+                itemComp.icon = Assets.getTexture(
+                        FluidContainerAssetResolver.getFluidContainerUri(
+                                ((Asset) resultContainer.textureWithHole).getURI().toSimpleString(),
+                                fluidType,
+                                resultContainer.fluidMinPerc.x, resultContainer.fluidMinPerc.y,
+                                resultContainer.fluidSizePerc.x, resultContainer.fluidSizePerc.y));
                 container.saveComponent(itemComp);
             }
         } else {
