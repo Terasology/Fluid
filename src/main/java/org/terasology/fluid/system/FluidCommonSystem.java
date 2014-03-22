@@ -8,9 +8,8 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.TextureUtil;
+import org.terasology.rendering.nui.Color;
 import org.terasology.world.liquid.LiquidType;
-
-import java.awt.*;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
