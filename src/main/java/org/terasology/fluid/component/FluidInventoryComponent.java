@@ -21,8 +21,9 @@ import org.terasology.network.Replicate;
 
 import java.util.List;
 
-@Replicate
 public class FluidInventoryComponent implements Component {
+    @Replicate
     public List<EntityRef> fluidSlots;
+    @Replicate
     public List<Float> maximumVolumes;
 }
