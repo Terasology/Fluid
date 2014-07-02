@@ -21,6 +21,7 @@ import org.terasology.asset.AssetType;
 import org.terasology.asset.AssetUri;
 import org.terasology.asset.Assets;
 import org.terasology.math.Vector2i;
+import org.terasology.naming.Name;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureData;
@@ -49,9 +50,9 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
     }
 
     @Override
-    public AssetUri resolve(String partialUri) {
+    public AssetUri resolve(Name partialUri) {
 
-        String[] parts = partialUri.split("\\(", 2);
+        String[] parts = partialUri.toString().split("\\(", 2);
         if (parts.length > 1) {
             AssetUri uri = Assets.resolveAssetUri(AssetType.TEXTURE, parts[0]);
             if (uri != null) {
@@ -63,11 +64,11 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
 
     @Override
     public Texture resolve(AssetUri uri, AssetFactory<TextureData, Texture> factory) {
-        if (!"fluid".equals(uri.getNormalisedModuleName())
-                || !uri.getNormalisedAssetName().startsWith("fluid(")) {
+        if (!"fluid".equals(uri.getModuleName().toString())
+                || !uri.getAssetName().toString().startsWith("fluid(")) {
             return null;
         }
-        String assetName = uri.getAssetName();
+        String assetName = uri.getAssetName().toString();
         String[] split = assetName.split("\\(");
 
         String[] parameters = split[1].substring(0, split[1].length() - 1).split(",");
