@@ -35,6 +35,8 @@ import java.nio.ByteBuffer;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class FluidContainerAssetResolver implements AssetResolver<Texture, TextureData> {
+    private static final Name FLUID_MODULE = new Name("fluid");
+
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
                                               float sizePercX, float sizePercY) {
         StringBuilder sb = new StringBuilder();
@@ -64,11 +66,11 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
 
     @Override
     public Texture resolve(AssetUri uri, AssetFactory<TextureData, Texture> factory) {
-        if (!"fluid".equals(uri.getModuleName().toString())
-                || !uri.getAssetName().toString().startsWith("fluid(")) {
+        final String assetName = uri.getAssetName().toString().toLowerCase();
+        if (!FLUID_MODULE.equals(uri.getModuleName())
+                || !assetName.startsWith("fluid(")) {
             return null;
         }
-        String assetName = uri.getAssetName().toString();
         String[] split = assetName.split("\\(");
 
         String[] parameters = split[1].substring(0, split[1].length() - 1).split(",");
