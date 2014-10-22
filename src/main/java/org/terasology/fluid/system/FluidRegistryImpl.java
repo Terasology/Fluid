@@ -19,7 +19,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
 
     @Override
     public void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType) {
-        fluidRenderers.put(fluidType, fluidRenderer);
+        fluidRenderers.put(fluidType.toLowerCase(), fluidRenderer);
         if (liquidType != null) {
             liquidMapping.put(liquidType, fluidType);
         }
@@ -32,6 +32,6 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
 
     @Override
     public FluidRenderer getFluidRenderer(String fluidType) {
-        return fluidRenderers.get(fluidType);
+        return fluidRenderers.get(fluidType.toLowerCase());
     }
 }
