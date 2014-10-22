@@ -21,7 +21,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     public void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType) {
         fluidRenderers.put(fluidType.toLowerCase(), fluidRenderer);
         if (liquidType != null) {
-            liquidMapping.put(liquidType, fluidType);
+            liquidMapping.put(liquidType, fluidType.toLowerCase());
         }
     }
 
