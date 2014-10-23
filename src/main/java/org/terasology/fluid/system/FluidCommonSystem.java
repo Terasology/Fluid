@@ -26,6 +26,6 @@ public class FluidCommonSystem extends BaseComponentSystem {
         AssetUri waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
         fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(Assets.getTexture(waterTextureUri.getAssetName().toString()), "water"), LiquidType.WATER);
 
-        assetManager.addResolver(AssetType.TEXTURE, new FluidContainerAssetResolver());
+        assetManager.addResolver(AssetType.TEXTURE, new FluidContainerAssetResolver(fluidRegistry));
     }
 }

@@ -22,7 +22,6 @@ import org.terasology.asset.AssetUri;
 import org.terasology.asset.Assets;
 import org.terasology.math.Vector2i;
 import org.terasology.naming.Name;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureData;
 import org.terasology.rendering.assets.texture.TextureUtil;
@@ -36,6 +35,12 @@ import java.nio.ByteBuffer;
  */
 public class FluidContainerAssetResolver implements AssetResolver<Texture, TextureData> {
     private static final Name FLUID_MODULE = new Name("fluid");
+
+    private FluidRegistry fluidRegistry;
+
+    public FluidContainerAssetResolver(FluidRegistry fluidRegistry) {
+        this.fluidRegistry = fluidRegistry;
+    }
 
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
                                               float sizePercX, float sizePercY) {
@@ -78,7 +83,8 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
         String textureWithHole = parameters[0];
         String fluidType = parameters[1];
 
-        BufferedImage fluidTexture = TextureUtil.convertToImage(CoreRegistry.get(FluidRegistry.class).getFluidRenderer(fluidType).getTexture());
+        FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(fluidType);
+        BufferedImage fluidTexture = TextureUtil.convertToImage(fluidRenderer.getTexture());
 
         BufferedImage containerTexture = TextureUtil.convertToImage(Assets.getTextureRegion(textureWithHole));
         int width = containerTexture.getWidth();
