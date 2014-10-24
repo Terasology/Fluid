@@ -48,6 +48,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 if (fluid.volume + volume <= maximumVolume) {
                     fluid.volume += volume;
                     fluidEntity.saveComponent(fluid);
+                    container.saveComponent(fluidInventory);
                     return true;
                 }
             }
@@ -95,6 +96,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             if (fluid.volume + volume <= maximumVolume) {
                 fluid.volume += volume;
                 fluidEntity.saveComponent(fluid);
+                container.saveComponent(fluidInventory);
                 return true;
             }
         }
@@ -129,6 +131,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         List<EntityRef> fluidSlots = fluidInventory.fluidSlots;
         for (int i = 0; i < fluidSlots.size(); i++) {
             if (removeFluid(instigator, container, i, fluidType, volume)) {
+                container.saveComponent(fluidInventory);
                 return true;
             }
         }
@@ -154,6 +157,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 fluid.volume -= volume;
                 fluidEntity.saveComponent(fluid);
             }
+            container.saveComponent(fluidInventory);
             return true;
         }
 
