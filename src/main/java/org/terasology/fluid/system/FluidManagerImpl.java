@@ -23,6 +23,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.event.BeforeFluidPutInInventory;
+import org.terasology.fluid.event.BeforeFluidRemovedFromInventory;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.Share;
 
@@ -104,17 +105,21 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         if (fluid == null) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
             if (volume <= maximumVolume) {
-                EntityManager entityManager = CoreRegistry.get(EntityManager.class);
+                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
+                container.send(beforePut);
+                if (!beforePut.isConsumed()) {
+                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                FluidComponent fluidComponent = new FluidComponent();
-                fluidComponent.fluidType = fluidType;
-                fluidComponent.volume = volume;
+                    FluidComponent fluidComponent = new FluidComponent();
+                    fluidComponent.fluidType = fluidType;
+                    fluidComponent.volume = volume;
 
-                EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                fluidInventory.fluidSlots.set(slot, newFluidEntity);
-                container.saveComponent(fluidInventory);
+                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                    fluidInventory.fluidSlots.set(slot, newFluidEntity);
+                    container.saveComponent(fluidInventory);
 
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -149,16 +154,20 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         EntityRef fluidEntity = fluidInventory.fluidSlots.get(slot);
         FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
         if (fluid != null && fluid.fluidType.equals(fluidType) && fluid.volume >= volume) {
-            if (fluid.volume == volume) {
-                fluidEntity.destroy();
-                fluidInventory.fluidSlots.set(slot, EntityRef.NULL);
+            BeforeFluidRemovedFromInventory beforePut = new BeforeFluidRemovedFromInventory(instigator, fluidType, volume, slot);
+            container.send(beforePut);
+            if (!beforePut.isConsumed()) {
+                if (fluid.volume == volume) {
+                    fluidEntity.destroy();
+                    fluidInventory.fluidSlots.set(slot, EntityRef.NULL);
+                    container.saveComponent(fluidInventory);
+                } else {
+                    fluid.volume -= volume;
+                    fluidEntity.saveComponent(fluid);
+                }
                 container.saveComponent(fluidInventory);
-            } else {
-                fluid.volume -= volume;
-                fluidEntity.saveComponent(fluid);
+                return true;
             }
-            container.saveComponent(fluidInventory);
-            return true;
         }
 
         return false;
