@@ -28,8 +28,9 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     @In
     private InventoryManager inventoryManager;
 
-    @ReceiveEvent(components = {ItemComponent.class})
-    public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
+    @ReceiveEvent
+    public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
+                                       ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null) {
             Vector3f location = event.getInstigatorLocation();
             Vector3f direction = new Vector3f(event.getDirection());
