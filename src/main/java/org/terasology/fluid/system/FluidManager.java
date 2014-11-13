@@ -18,11 +18,11 @@ package org.terasology.fluid.system;
 import org.terasology.entitySystem.entity.EntityRef;
 
 public interface FluidManager {
-    public boolean addFluid(EntityRef instigator, EntityRef container, String fluidType, float volume);
+    boolean addFluid(EntityRef instigator, EntityRef container, String fluidType, float volume);
 
-    public boolean addFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume);
+    boolean addFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume);
 
-    public boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume);
+    boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume);
 
-    public boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume);
+    boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume);
 }

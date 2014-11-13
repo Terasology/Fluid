@@ -30,7 +30,7 @@ import org.terasology.registry.Share;
 import java.util.List;
 
 @RegisterSystem(value = RegisterMode.AUTHORITY)
-@Share(value = {FluidManager.class})
+@Share(FluidManager.class)
 public class FluidManagerImpl extends BaseComponentSystem implements FluidManager {
     @Override
     public boolean addFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
