@@ -17,6 +17,7 @@ package org.terasology.fluid.component;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.logic.inventory.ItemDifferentiating;
+import org.terasology.network.Replicate;
 import org.terasology.rendering.assets.texture.TextureRegion;
 
 import javax.vecmath.Vector2f;
@@ -26,6 +27,7 @@ import javax.vecmath.Vector2f;
  */
 @ItemDifferentiating
 public class FluidContainerItemComponent implements Component {
+    @Replicate
     public String fluidType;
     public float volume;
     public Vector2f fluidMinPerc;

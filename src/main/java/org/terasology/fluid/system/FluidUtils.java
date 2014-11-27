@@ -15,11 +15,8 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.asset.Asset;
-import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluid.component.FluidContainerItemComponent;
-import org.terasology.logic.inventory.ItemComponent;
 
 public final class FluidUtils {
     private FluidUtils() {
@@ -29,22 +26,5 @@ public final class FluidUtils {
         FluidContainerItemComponent resultContainer = container.getComponent(FluidContainerItemComponent.class);
         resultContainer.fluidType = fluidType;
         container.saveComponent(resultContainer);
-
-        if (fluidType != null) {
-            if (resultContainer.textureWithHole instanceof Asset) {
-                ItemComponent itemComp = container.getComponent(ItemComponent.class);
-                itemComp.icon = Assets.getTexture(
-                        FluidContainerAssetResolver.getFluidContainerUri(
-                                ((Asset) resultContainer.textureWithHole).getURI().toSimpleString(),
-                                fluidType,
-                                resultContainer.fluidMinPerc.x, resultContainer.fluidMinPerc.y,
-                                resultContainer.fluidSizePerc.x, resultContainer.fluidSizePerc.y));
-                container.saveComponent(itemComp);
-            }
-        } else {
-            ItemComponent itemComp = container.getComponent(ItemComponent.class);
-            itemComp.icon = resultContainer.emptyTexture;
-            container.saveComponent(itemComp);
-        }
     }
 }

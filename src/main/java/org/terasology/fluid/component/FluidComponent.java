@@ -16,8 +16,11 @@
 package org.terasology.fluid.component;
 
 import org.terasology.entitySystem.Component;
+import org.terasology.network.Replicate;
 
 public class FluidComponent implements Component {
+    @Replicate
     public String fluidType;
+    @Replicate
     public float volume;
 }
