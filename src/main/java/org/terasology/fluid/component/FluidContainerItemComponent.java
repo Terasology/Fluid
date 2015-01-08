@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@ package org.terasology.fluid.component;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.logic.inventory.ItemDifferentiating;
+import org.terasology.math.geom.Vector2f;
 import org.terasology.network.Replicate;
 import org.terasology.rendering.assets.texture.TextureRegion;
-
-import javax.vecmath.Vector2f;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
