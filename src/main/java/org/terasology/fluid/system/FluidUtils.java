@@ -16,7 +16,9 @@
 package org.terasology.fluid.system;
 
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.fluid.component.FluidInventoryComponent;
 
 public final class FluidUtils {
     private FluidUtils() {
@@ -26,5 +28,31 @@ public final class FluidUtils {
         FluidContainerItemComponent resultContainer = container.getComponent(FluidContainerItemComponent.class);
         resultContainer.fluidType = fluidType;
         container.saveComponent(resultContainer);
+    }
+
+    public static String getFluidAt(EntityRef entity, int slot) {
+        FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
+        if (fluidInventoryComponent != null) {
+            EntityRef fluidEntity = fluidInventoryComponent.fluidSlots.get(slot);
+            FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
+            if (fluid != null) {
+                return fluid.fluidType;
+            }
+        }
+
+        return null;
+    }
+
+    public static float getFluidAmount(EntityRef entity, int slot) {
+        FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
+        if (fluidInventoryComponent != null) {
+            EntityRef fluidEntity = fluidInventoryComponent.fluidSlots.get(slot);
+            FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
+            if (fluid != null) {
+                return fluid.volume;
+            }
+        }
+
+        return 0;
     }
 }
