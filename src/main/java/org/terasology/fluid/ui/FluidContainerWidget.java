@@ -87,7 +87,7 @@ public class FluidContainerWidget extends CoreWidget {
                 } else {
                     float yPerc = 1f * (minY - result * (minY - maxY)) / texture.getHeight();
                     int y = Math.round(yPerc * size.y);
-                    fluidRenderer.renderFluid(canvas, Rect2i.createFromMinAndSize(minX, y, maxX, minY - y + 1));
+                    fluidRenderer.renderFluid(canvas, Rect2i.createFromMinAndSize(minX, y, maxX, minY - y));
                 }
             }
 
