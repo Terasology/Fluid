@@ -55,4 +55,12 @@ public final class FluidUtils {
 
         return 0;
     }
+
+    public static int getFluidSlotCount(EntityRef entity) {
+        FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
+        if (fluidInventoryComponent != null) {
+            return fluidInventoryComponent.fluidSlots.size();
+        }
+        return 0;
+    }
 }

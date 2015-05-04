@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluid.component;
+package org.terasology.fluid.computer.module.storage;
 
 import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.Owns;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.network.Replicate;
 
-import java.util.List;
-
-public class FluidInventoryComponent implements Component {
-    @Replicate
-    public List<EntityRef> fluidSlots;
-    @Replicate
-    public List<Float> maximumVolumes;
-
-    public FluidInventoryComponent() {
-    }
-
-    public FluidInventoryComponent(int numSlots, float maximumVolume) {
-        for (int i = 0; i < numSlots; ++i) {
-            fluidSlots.add(EntityRef.NULL);
-            maximumVolumes.add(maximumVolume);
-        }
-    }
+public class FluidInternalStorageComponent implements Component {
+    @Owns
+    public EntityRef inventoryEntity;
 }
