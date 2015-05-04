@@ -25,4 +25,6 @@ public interface FluidManager {
     boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume);
 
     boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume);
+
+    float moveFluid(EntityRef instigator, EntityRef from, EntityRef to, int slotFrom, String fluidType, int slotTo, float volume);
 }

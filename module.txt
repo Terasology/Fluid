@@ -5,5 +5,10 @@
     "displayName" : "Fluid",
     "description" : "",
     "dependencies" : [],
+    "optionalDependencies": [
+                    {
+                         "id" : "ModularComputers",
+                         "minVersion" : "0.1.0"
+                    }],
     "isServerSideOnly" : false
 }
