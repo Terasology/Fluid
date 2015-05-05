@@ -45,9 +45,7 @@ public class FluidStorageModuleCommonSystem extends BaseComponentSystem {
                     "This module allows storing items within the computer itself. Only one module of this type can be installed in a computer " +
                             "at a time. Player does not have access to the storage itself via user interface, however " +
                             "<h navigate:" + fluidManipulatorModulePageId + ">Fluid manipulator</h> module can be used to access it and store in an external " +
-                            "storage.<l>" +
-                            "For more information about usage of this module - refer to <h navigate:" + fluidManipulatorModulePageId + ">Fluid manipulator</h> " +
-                            "module documentation.",
+                            "storage.",
                     null);
         }
     }
