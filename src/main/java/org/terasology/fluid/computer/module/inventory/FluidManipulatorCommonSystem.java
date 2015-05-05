@@ -22,6 +22,7 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.system.FluidManager;
+import org.terasology.logic.config.ModuleConfigManager;
 import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
 
@@ -39,11 +40,14 @@ public class FluidManipulatorCommonSystem extends BaseComponentSystem {
     private FluidManipulatorConditionsRegister fluidManipulatorConditionsRegister;
     @In
     private ComputerLanguageRegistry computerLanguageRegistry;
+    @In
+    private ModuleConfigManager moduleConfigManager;
 
     @Override
     public void preBegin() {
         // Dependency on computers is optional, so just don't call it, if it's not there
-        if (computerLanguageRegistry != null && computerModuleRegistry != null) {
+        if (computerLanguageRegistry != null && computerModuleRegistry != null
+                && moduleConfigManager.getBooleanVariable("Fluid", "registerModule.manipulator", true)) {
             computerLanguageRegistry.registerObjectType(
                     "FluidInventoryBinding",
                     HTMLLikeParser.parseHTMLLike(null, "An object that tells a method how to access a fluid inventory. Usually used as a parameter " +

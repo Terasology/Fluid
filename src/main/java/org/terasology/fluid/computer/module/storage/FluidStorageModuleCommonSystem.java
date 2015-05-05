@@ -15,14 +15,13 @@
  */
 package org.terasology.fluid.computer.module.storage;
 
-import org.terasology.computer.module.inventory.InventoryModuleCommonSystem;
-import org.terasology.computer.module.storage.StorageComputerModule;
 import org.terasology.computer.system.common.ComputerModuleRegistry;
 import org.terasology.computer.ui.documentation.DocumentationBuilder;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.computer.module.inventory.FluidManipulatorCommonSystem;
+import org.terasology.logic.config.ModuleConfigManager;
 import org.terasology.registry.In;
 
 @RegisterSystem(RegisterMode.ALWAYS)
@@ -31,10 +30,13 @@ public class FluidStorageModuleCommonSystem extends BaseComponentSystem {
 
     @In
     private ComputerModuleRegistry computerModuleRegistry;
+    @In
+    private ModuleConfigManager moduleConfigManager;
 
     @Override
     public void preBegin() {
-        if (computerModuleRegistry != null) {
+        if (computerModuleRegistry != null
+                && moduleConfigManager.getBooleanVariable("Fluid", "registerModule.storage", true)) {
             String fluidManipulatorModulePageId = DocumentationBuilder.getComputerModulePageId(FluidManipulatorCommonSystem.COMPUTER_FLUID_MODULE_TYPE);
 
             computerModuleRegistry.registerComputerModule(
