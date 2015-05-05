@@ -4,11 +4,11 @@
     "author" : "Marcin Sciesinski <marcins78@gmail.com>",
     "displayName" : "Fluid",
     "description" : "",
-    "dependencies" : [],
-    "optionalDependencies": [
-                    {
-                         "id" : "ModularComputers",
-                         "minVersion" : "0.1.0"
-                    }],
+    "dependencies" : [
+        {
+            "id" : "ModularComputers",
+            "minVersion" : "0.1.0",
+            "optional": true
+        }],
     "isServerSideOnly" : false
 }
