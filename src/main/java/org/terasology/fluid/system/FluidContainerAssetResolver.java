@@ -15,31 +15,38 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.asset.AssetFactory;
-import org.terasology.asset.AssetResolver;
-import org.terasology.asset.AssetType;
-import org.terasology.asset.AssetUri;
-import org.terasology.asset.Assets;
+import com.google.common.collect.ImmutableSet;
+import org.terasology.assets.AssetDataProducer;
+import org.terasology.assets.ResourceUrn;
+import org.terasology.assets.management.AssetManager;
+import org.terasology.assets.module.annotations.RegisterAssetDataProducer;
 import org.terasology.math.Vector2i;
 import org.terasology.naming.Name;
+import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureData;
+import org.terasology.rendering.assets.texture.TextureRegionAsset;
 import org.terasology.rendering.assets.texture.TextureUtil;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class FluidContainerAssetResolver implements AssetResolver<Texture, TextureData> {
+@RegisterAssetDataProducer
+public class FluidContainerAssetResolver implements AssetDataProducer<TextureData> {
     private static final Name FLUID_MODULE = new Name("fluid");
 
-    private FluidRegistry fluidRegistry;
+    private final AssetManager assetManager;
 
-    public FluidContainerAssetResolver(FluidRegistry fluidRegistry) {
-        this.fluidRegistry = fluidRegistry;
+    public FluidContainerAssetResolver(AssetManager assetManager) {
+        this.assetManager = assetManager;
     }
 
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
@@ -56,25 +63,31 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
         return sb.toString();
     }
 
-    @Override
-    public AssetUri resolve(Name partialUri) {
 
-        String[] parts = partialUri.toString().split("\\(", 2);
-        if (parts.length > 1) {
-            AssetUri uri = Assets.resolveAssetUri(AssetType.TEXTURE, parts[0]);
-            if (uri != null) {
-                return new AssetUri(AssetType.TEXTURE, uri.getModuleName(), partialUri);
-            }
-        }
-        return null;
+    @Override
+    public Set<ResourceUrn> getAvailableAssetUrns() {
+        return Collections.emptySet();
     }
 
     @Override
-    public Texture resolve(AssetUri uri, AssetFactory<TextureData, Texture> factory) {
-        final String assetName = uri.getAssetName().toString().toLowerCase();
-        if (!FLUID_MODULE.equals(uri.getModuleName())
+    public Set<Name> getModulesProviding(Name resourceName) {
+        if (!resourceName.toLowerCase().startsWith("fluid(")) {
+            return Collections.emptySet();
+        }
+        return ImmutableSet.of(FLUID_MODULE);
+    }
+
+    @Override
+    public ResourceUrn redirect(ResourceUrn urn) {
+        return urn;
+    }
+
+    @Override
+    public Optional<TextureData> getAssetData(ResourceUrn urn) throws IOException {
+        final String assetName = urn.getResourceName().toString().toLowerCase();
+        if (!FLUID_MODULE.equals(urn.getModuleName())
                 || !assetName.startsWith("fluid(")) {
-            return null;
+            return Optional.empty();
         }
         String[] split = assetName.split("\\(");
 
@@ -83,10 +96,12 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
         String textureWithHole = parameters[0];
         String fluidType = parameters[1];
 
-        FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(fluidType);
+        FluidRenderer fluidRenderer = CoreRegistry.get(FluidRegistry.class).getFluidRenderer(fluidType);
         BufferedImage fluidTexture = TextureUtil.convertToImage(fluidRenderer.getTexture());
 
-        BufferedImage containerTexture = TextureUtil.convertToImage(Assets.getTextureRegion(textureWithHole));
+        Optional<TextureRegionAsset> textureWithHoleRegion = assetManager.getAsset(textureWithHole,
+                TextureRegionAsset.class);
+        BufferedImage containerTexture = TextureUtil.convertToImage(textureWithHoleRegion.get());
         int width = containerTexture.getWidth();
         int height = containerTexture.getHeight();
 
@@ -119,6 +134,9 @@ public class FluidContainerAssetResolver implements AssetResolver<Texture, Textu
 
         final ByteBuffer resultBuffer = TextureUtil.convertToByteBuffer(result);
 
-        return factory.buildAsset(uri, new TextureData(width, height, new ByteBuffer[]{resultBuffer}, Texture.WrapMode.REPEAT, Texture.FilterMode.NEAREST));
+        TextureData data = new TextureData(width, height, new ByteBuffer[]{resultBuffer}, Texture.WrapMode.REPEAT,
+                Texture.FilterMode.NEAREST);
+        return Optional.of(data);
+
     }
 }

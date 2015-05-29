@@ -15,13 +15,13 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.asset.AssetManager;
-import org.terasology.asset.AssetType;
-import org.terasology.asset.AssetUri;
-import org.terasology.asset.Assets;
+
+import org.terasology.assets.ResourceUrn;
+import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.In;
+import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureUtil;
 import org.terasology.rendering.nui.Color;
 import org.terasology.world.liquid.LiquidType;
@@ -33,14 +33,15 @@ import org.terasology.world.liquid.LiquidType;
 public class FluidCommonSystem extends BaseComponentSystem {
     @In
     private FluidRegistry fluidRegistry;
+
     @In
     private AssetManager assetManager;
 
     @Override
     public void preBegin() {
-        AssetUri waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
-        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(Assets.getTexture(waterTextureUri.getAssetName().toString()), "water"), LiquidType.WATER);
+        ResourceUrn waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
+        Texture texture = assetManager.getAsset(waterTextureUri, Texture.class).get();
 
-        assetManager.addResolver(AssetType.TEXTURE, new FluidContainerAssetResolver(fluidRegistry));
+        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(texture, "water"), LiquidType.WATER);
     }
 }

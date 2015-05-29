@@ -38,7 +38,7 @@ import org.terasology.rendering.nui.databinding.DefaultBinding;
  */
 public class FluidContainerWidget extends CoreWidget {
     @LayoutConfig
-    private Binding<TextureRegion> image = new DefaultBinding<>(Assets.getTextureRegion("Fluid:FluidContainer"));
+    private Binding<TextureRegion> image = new DefaultBinding<>(Assets.getTextureRegion("Fluid:FluidContainer").get());
     private InteractionListener listener = new BaseInteractionListener();
 
     private int minX;

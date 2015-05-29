@@ -1,9 +1,14 @@
 {
     "id" : "Fluid",
-    "version" : "0.1.0",
+    "version" : "0.1.1-SNAPSHOT",
     "author" : "Marcin Sciesinski <marcins78@gmail.com>",
     "displayName" : "Fluid",
     "description" : "",
-    "dependencies" : [],
+    "dependencies" : [
+            {
+                "id" : "Core",
+                "minVersion" : "0.54.0"
+            }
+    ],
     "isServerSideOnly" : false
 }
