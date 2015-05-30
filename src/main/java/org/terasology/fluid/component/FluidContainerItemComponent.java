@@ -19,7 +19,7 @@ import org.terasology.entitySystem.Component;
 import org.terasology.logic.inventory.ItemDifferentiating;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.network.Replicate;
-import org.terasology.rendering.assets.texture.TextureRegion;
+import org.terasology.rendering.assets.texture.TextureRegionAsset;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
@@ -31,8 +31,8 @@ public class FluidContainerItemComponent implements Component {
     public float volume;
     public Vector2f fluidMinPerc;
     public Vector2f fluidSizePerc;
-    public TextureRegion textureWithHole;
-    public TextureRegion emptyTexture;
+    public TextureRegionAsset<?> textureWithHole;
+    public TextureRegionAsset<?> emptyTexture;
 
     @Override
     public boolean equals(Object o) {

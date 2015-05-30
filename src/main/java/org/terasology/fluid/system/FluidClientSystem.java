@@ -58,7 +58,7 @@ public class FluidClientSystem extends BaseComponentSystem {
                     ItemComponent itemComp = container.getComponent(ItemComponent.class);
 
                     String iconUrn = FluidContainerAssetResolver.getFluidContainerUri(
-                            ((Asset) fluidContainerItem.textureWithHole).getUrn().toString(),
+                            fluidContainerItem.textureWithHole.getUrn().toString(),
                             fluidType,
                             fluidContainerItem.fluidMinPerc.x, fluidContainerItem.fluidMinPerc.y,
                             fluidContainerItem.fluidSizePerc.x, fluidContainerItem.fluidSizePerc.y);
