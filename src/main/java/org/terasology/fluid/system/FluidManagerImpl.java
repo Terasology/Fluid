@@ -25,6 +25,7 @@ import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.event.BeforeFluidPutInInventory;
 import org.terasology.fluid.event.BeforeFluidRemovedFromInventory;
 import org.terasology.fluid.event.FluidVolumeChangedInInventory;
+import org.terasology.network.NetworkComponent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.Share;
 
@@ -78,6 +79,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                         fluidComponent.volume = volume;
 
                         EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                        newFluidEntity.addComponent(new NetworkComponent());
                         fluidSlots.set(i, newFluidEntity);
                         container.saveComponent(fluidInventory);
 

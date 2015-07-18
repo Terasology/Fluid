@@ -17,6 +17,7 @@ package org.terasology.fluid.component;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.Owns;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.network.Replicate;
 
@@ -24,6 +25,7 @@ import java.util.List;
 
 public class FluidInventoryComponent implements Component {
     @Replicate
+    @Owns
     public List<EntityRef> fluidSlots = Lists.newLinkedList();
     @Replicate
     public List<Float> maximumVolumes = Lists.newLinkedList();
