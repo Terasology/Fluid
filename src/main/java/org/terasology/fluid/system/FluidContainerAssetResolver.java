@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.terasology.fluid.system;
 
 import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.assets.AssetDataProducer;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
@@ -41,6 +43,8 @@ import java.util.Set;
  */
 @RegisterAssetDataProducer
 public class FluidContainerAssetResolver implements AssetDataProducer<TextureData> {
+    private static final Logger logger = LoggerFactory.getLogger(FluidContainerAssetResolver.class);
+
     private static final Name FLUID_MODULE = new Name("fluid");
 
     private final AssetManager assetManager;
@@ -92,6 +96,11 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         String[] split = assetName.split("\\(");
 
         String[] parameters = split[1].substring(0, split[1].length() - 1).split(",");
+
+        if (parameters.length != 6) {
+            logger.warn("Unexpected number of tokens when trying to getAssetData for a fluid container's content: {}", parameters);
+            return Optional.empty();
+        }
 
         String textureWithHole = parameters[0];
         String fluidType = parameters[1];
