@@ -22,7 +22,7 @@ import org.terasology.assets.AssetDataProducer;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
 import org.terasology.assets.module.annotations.RegisterAssetDataProducer;
-import org.terasology.math.Vector2i;
+import org.terasology.math.geom.Vector2i;
 import org.terasology.naming.Name;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.Texture;
