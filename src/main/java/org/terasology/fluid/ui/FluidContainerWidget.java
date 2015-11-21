@@ -37,6 +37,8 @@ import org.terasology.rendering.nui.databinding.DefaultBinding;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class FluidContainerWidget extends CoreWidget {
+    FluidRegistry fluidRegistry;
+
     @LayoutConfig
     private Binding<TextureRegion> image = new DefaultBinding<>(Assets.getTextureRegion("Fluid:FluidContainer").get());
     private InteractionListener listener = new BaseInteractionListener();
@@ -51,6 +53,7 @@ public class FluidContainerWidget extends CoreWidget {
     private int slotNo;
 
     public FluidContainerWidget() {
+        fluidRegistry = CoreRegistry.get(FluidRegistry.class);
     }
 
     public FluidContainerWidget(String id) {
@@ -73,12 +76,16 @@ public class FluidContainerWidget extends CoreWidget {
             FluidInventoryComponent fluidInventory = entity.getComponent(FluidInventoryComponent.class);
             FluidComponent fluid = fluidInventory.fluidSlots.get(slotNo).getComponent(FluidComponent.class);
             float maxVolume = fluidInventory.maximumVolumes.get(slotNo);
+            float currentVolume = 0f;
+            String fluidType = null;
+            FluidRenderer fluidRenderer = null;
 
             if (fluid != null) {
+                currentVolume = fluid.volume;
+                fluidType = fluid.fluidType;
                 float result = fluid.volume / maxVolume;
 
-                FluidRegistry fluidRegistry = CoreRegistry.get(FluidRegistry.class);
-                FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(fluid.fluidType);
+                fluidRenderer = fluidRegistry.getFluidRenderer(fluid.fluidType);
 
                 Vector2i size = canvas.size();
                 if (minY < maxY) {
@@ -92,6 +99,11 @@ public class FluidContainerWidget extends CoreWidget {
             }
 
             canvas.drawTexture(texture, canvas.getRegion());
+
+            setTooltipDelay(0);
+            String fluidDisplay = fluidType == null ? "Fluid" : fluidRenderer.getFluidName();
+            setTooltip(String.format(fluidDisplay + ": %.0f/%.0f", currentVolume, maxVolume));
+
         }
 
         canvas.addInteractionRegion(listener);
