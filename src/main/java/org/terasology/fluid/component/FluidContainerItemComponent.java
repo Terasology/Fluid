@@ -24,8 +24,7 @@ import org.terasology.rendering.assets.texture.TextureRegionAsset;
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-@ItemDifferentiating
-public class FluidContainerItemComponent implements Component {
+public class FluidContainerItemComponent implements Component, ItemDifferentiating {
     @Replicate
     public String fluidType;
     public float volume;
