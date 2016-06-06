@@ -95,12 +95,37 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         }
         String[] split = assetName.split("\\(");
 
-        String[] parameters = split[1].substring(0, split[1].length() - 1).split(",");
+        // Get the parameters from the URN.
+        String[] parameters = null;
 
+        // If the URN's fragment name is non-empty, then that means this item is using a texture atlas.
+        // Thus, the necessary information is contained in the resource name (specifically split[1]) and fragment name.
+        if (!urn.getFragmentName().toString().equals("")) {
+            // Break up the string using commas.
+            parameters = urn.getFragmentName().toString().split(",");
+
+            // As this is a texture atlas, combine the location of the atlas (split[1]) with the name of the element in
+            // the atlas (parameters[0]), and store it back into parameters[0].
+            // Example: "woodandstone:items" + "#" + "WoodenBucket".
+            parameters[0] = split[1] + "#" + parameters[0];
+        }
+        // Otherwise, if the URN's fragment name is empty, then that means this item is using individual textures.
+        // Thus, all the necessary is contained in the resource name.
+        else
+        {
+            // First, remove everything up to and including the left parenthesis in the string, and then split it up
+            // using commas.
+            parameters = urn.getResourceName().toString().split("\\(")[1].split(",");
+        }
+
+        // If the number of parameters is less than 6, return with empty.
         if (parameters.length != 6) {
             logger.warn("Unexpected number of tokens when trying to getAssetData for a fluid container's content: {}", parameters);
             return Optional.empty();
         }
+
+        // Remove the extraneous right parenthesis from the end of the last parameter.
+        parameters[5] = parameters[5].substring(0, parameters[5].length() - 1);
 
         String textureWithHole = parameters[0];
         String fluidType = parameters[1];
