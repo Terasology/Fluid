@@ -49,23 +49,15 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
             if (fluid != null && fluid.fluidType.equals(fluidType)) {
                 float maximumVolume = maximumVolumes.get(i);
-                if (fluid.volume + volume <= maximumVolume) {
-                    float oldVolume = fluid.volume;
-                    fluid.volume += volume;
-                    float newVolume = fluid.volume;
 
-                    fluidEntity.saveComponent(fluid);
-                    container.saveComponent(fluidInventory);
-
-                    container.send(new FluidVolumeChangedInInventory(instigator, fluidType, i, oldVolume, newVolume));
-
-                    return true;
-                }
                 // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This will still
-                // empty the item used to fill the inventory though.
-                else if (fluid.volume < maximumVolume) {
+                // empty the item used to fill the inventory slot though.
+                if (fluid.volume <= maximumVolume) {
                     float oldVolume = fluid.volume;
-                    fluid.volume = maximumVolume;
+
+                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                    fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
+
                     float newVolume = fluid.volume;
 
                     fluidEntity.saveComponent(fluid);
@@ -85,47 +77,26 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             // If the fluid in this fluid inventory slot doesn't already exist yet.
             if (fluid == null) {
                 float maximumVolume = maximumVolumes.get(i);
-                // If the volume being added is less than or equal to the maximum fluid volume capacity.
-                if (volume <= maximumVolume) {
-                    BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, i);
-                    container.send(beforePut);
-                    if (!beforePut.isConsumed()) {
-                        EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                        FluidComponent fluidComponent = new FluidComponent();
-                        fluidComponent.fluidType = fluidType;
-                        fluidComponent.volume = volume;
+                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, i);
+                container.send(beforePut);
+                if (!beforePut.isConsumed()) {
+                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                        EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                        newFluidEntity.addComponent(new NetworkComponent());
-                        fluidSlots.set(i, newFluidEntity);
-                        container.saveComponent(fluidInventory);
+                    FluidComponent fluidComponent = new FluidComponent();
+                    fluidComponent.fluidType = fluidType;
 
-                        container.send(new FluidVolumeChangedInInventory(instigator, fluidType, i, 0, volume));
+                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                    fluidComponent.volume = Math.min(maximumVolume, volume);
 
-                        return true;
-                    }
-                }
-                // If the volume being added is greater than the maximum fluid volume capacity.
-                else {
-                    BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, i);
-                    container.send(beforePut);
-                    if (!beforePut.isConsumed()) {
-                        EntityManager entityManager = CoreRegistry.get(EntityManager.class);
+                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                    newFluidEntity.addComponent(new NetworkComponent());
+                    fluidSlots.set(i, newFluidEntity);
+                    container.saveComponent(fluidInventory);
 
-                        FluidComponent fluidComponent = new FluidComponent();
-                        fluidComponent.fluidType = fluidType;
-                        fluidComponent.volume = maximumVolume;
+                    container.send(new FluidVolumeChangedInInventory(instigator, fluidType, i, 0, volume));
 
-                        EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                        newFluidEntity.addComponent(new NetworkComponent());
-                        fluidSlots.set(i, newFluidEntity);
-                        container.saveComponent(fluidInventory);
-
-                        container.send(new FluidVolumeChangedInInventory(instigator, fluidType, i, 0, volume));
-
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -144,22 +115,15 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
         if (fluid != null && fluid.fluidType.equals(fluidType)) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
-            if (fluid.volume + volume <= maximumVolume) {
-                float oldVolume = fluid.volume;
-                fluid.volume += volume;
-                float newVolume = fluid.volume;
-                fluidEntity.saveComponent(fluid);
-                container.saveComponent(fluidInventory);
 
-                container.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, oldVolume, newVolume));
-
-                return true;
-            }
             // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This will still
             // empty the item used to fill the inventory though.
-            else if (fluid.volume < maximumVolume) {
+            if (fluid.volume <= maximumVolume) {
                 float oldVolume = fluid.volume;
+
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
                 fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
+
                 float newVolume = fluid.volume;
                 fluidEntity.saveComponent(fluid);
                 container.saveComponent(fluidInventory);
@@ -173,45 +137,25 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         // If the fluid in this fluid inventory slot doesn't already exist yet.
         if (fluid == null) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
-            // If the volume being added is less than or equal to the maximum fluid volume capacity.
-            if (volume <= maximumVolume) {
-                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
-                container.send(beforePut);
-                if (!beforePut.isConsumed()) {
-                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                    FluidComponent fluidComponent = new FluidComponent();
-                    fluidComponent.fluidType = fluidType;
-                    fluidComponent.volume = volume;
+            BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
+            container.send(beforePut);
+            if (!beforePut.isConsumed()) {
+                EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                    fluidInventory.fluidSlots.set(slot, newFluidEntity);
-                    container.saveComponent(fluidInventory);
+                FluidComponent fluidComponent = new FluidComponent();
+                fluidComponent.fluidType = fluidType;
 
-                    container.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                fluidComponent.volume = Math.min(maximumVolume, volume);
 
-                    return true;
-                }
-            }
-            // If the volume being added is greater than the maximum fluid volume capacity.
-            else {
-                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
-                container.send(beforePut);
-                if (!beforePut.isConsumed()) {
-                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
+                EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                fluidInventory.fluidSlots.set(slot, newFluidEntity);
+                container.saveComponent(fluidInventory);
 
-                    FluidComponent fluidComponent = new FluidComponent();
-                    fluidComponent.fluidType = fluidType;
-                    fluidComponent.volume = maximumVolume;
+                container.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
 
-                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                    fluidInventory.fluidSlots.set(slot, newFluidEntity);
-                    container.saveComponent(fluidInventory);
-
-                    container.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
-
-                    return true;
-                }
+                return true;
             }
         }
 
@@ -231,25 +175,16 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
         if (fluid != null && fluid.fluidType.equals(fluidType)) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
-            if (fluid.volume + volume <= maximumVolume) {
-                float oldVolume = fluid.volume;
-                fluid.volume += volume;
-                fluidHolder.volume = Math.max(0f, fluidHolder.volume - (fluid.volume - oldVolume));
-                float newVolume = fluid.volume;
 
-                fluidEntity.saveComponent(fluid);
-                inventory.saveComponent(fluidInventory);
-                holder.saveComponent(fluidHolder);
-
-                inventory.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, oldVolume, newVolume));
-
-                return true;
-            }
             // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. The fluid holder
             // used will be emptied by the transferred amount accordingly.
-            else if (fluid.volume < maximumVolume) {
+            if (fluid.volume <= maximumVolume) {
                 float oldVolume = fluid.volume;
+
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
                 fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
+
+                // Remove the fluid from the fluid holder. If it goes under 0, clamp the value to the minimum.
                 fluidHolder.volume = Math.max(0f, fluidHolder.volume - (fluid.volume - oldVolume));
                 float newVolume = fluid.volume;
 
@@ -263,55 +198,33 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             }
         }
 
-        // If the fluid in this fluid inventory slot doesn't already exist yet.
+        // If the fluid in this fluid inventory slot doesn't already exist yet. Create the FluidComponent and transfer
+        // the fluid from the fluid holder to the fluid inventory slot.
         if (fluid == null) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
-            // If the volume being added is less than or equal to the maximum fluid volume capacity.
-            if (volume <= maximumVolume) {
-                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
-                inventory.send(beforePut);
-                if (!beforePut.isConsumed()) {
-                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                    FluidComponent fluidComponent = new FluidComponent();
-                    fluidComponent.fluidType = fluidType;
-                    fluidComponent.volume = volume;
+            BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
+            inventory.send(beforePut);
+            if (!beforePut.isConsumed()) {
+                EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
-                    // Set the volume of the fluid holder to 0 as it has been completely drained.
-                    fluidHolder.volume = 0f;
+                FluidComponent fluidComponent = new FluidComponent();
+                fluidComponent.fluidType = fluidType;
 
-                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                    fluidInventory.fluidSlots.set(slot, newFluidEntity);
-                    inventory.saveComponent(fluidInventory);
-                    holder.saveComponent(fluidHolder);
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                fluidComponent.volume = Math.min(maximumVolume, volume);
 
-                    inventory.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
+                // Remove the fluid from the fluid holder. If it goes under 0, clamp the value to the minimum.
+                fluidHolder.volume = Math.max(0f, fluidHolder.volume - maximumVolume);
 
-                    return true;
-                }
-            }
-            // If the volume being added is greater than the maximum fluid volume capacity.
-            else {
-                BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volume, slot);
-                inventory.send(beforePut);
-                if (!beforePut.isConsumed()) {
-                    EntityManager entityManager = CoreRegistry.get(EntityManager.class);
+                EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                fluidInventory.fluidSlots.set(slot, newFluidEntity);
+                inventory.saveComponent(fluidInventory);
+                holder.saveComponent(fluidHolder);
 
-                    FluidComponent fluidComponent = new FluidComponent();
-                    fluidComponent.fluidType = fluidType;
-                    fluidComponent.volume = maximumVolume;
+                inventory.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
 
-                    fluidHolder.volume = maximumVolume - fluidHolder.volume;
-
-                    EntityRef newFluidEntity = entityManager.create(fluidComponent);
-                    fluidInventory.fluidSlots.set(slot, newFluidEntity);
-                    inventory.saveComponent(fluidInventory);
-                    holder.saveComponent(fluidHolder);
-
-                    inventory.send(new FluidVolumeChangedInInventory(instigator, fluidType, slot, 0, volume));
-
-                    return true;
-                }
+                return true;
             }
         }
 
