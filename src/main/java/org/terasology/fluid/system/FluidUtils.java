@@ -20,16 +20,37 @@ import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 
+/**
+ * A set of utilities for managing fluids.
+ */
 public final class FluidUtils {
     private FluidUtils() {
     }
 
+    /**
+     * Sets the fluid type of a fluid container.
+     *
+     * @param container     Reference to entity that houses the fluid container item.
+     * @param fluidType     Name of the fluid type.
+     */
     public static void setFluidForContainerItem(EntityRef container, String fluidType) {
         FluidContainerItemComponent resultContainer = container.getComponent(FluidContainerItemComponent.class);
         resultContainer.fluidType = fluidType;
+
+        // If the fluid type is set to null, empty the container.
+        if (fluidType == null) {
+            resultContainer.volume = 0;
+        }
+
         container.saveComponent(resultContainer);
     }
 
+    /**
+     * Get the fluid type of the fluid stored in this particular fluid inventory slot.
+     *
+     * @param entity        Reference to entity that houses the fluid inventory component.
+     * @param slot          Slot number of the fluid inventory to access.
+     */
     public static String getFluidAt(EntityRef entity, int slot) {
         FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
         if (fluidInventoryComponent != null) {
@@ -43,6 +64,12 @@ public final class FluidUtils {
         return null;
     }
 
+    /**
+     * Get the volume of fluid stored in this particular fluid inventory slot.
+     *
+     * @param entity        Reference to entity that houses the fluid inventory component.
+     * @param slot          Slot number of the fluid inventory to access.
+     */
     public static float getFluidAmount(EntityRef entity, int slot) {
         FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
         if (fluidInventoryComponent != null) {
@@ -56,6 +83,11 @@ public final class FluidUtils {
         return 0;
     }
 
+    /**
+     * Get the number of slots present in this fluid inventory.
+     *
+     * @param entity        Reference to entity that houses the fluid inventory component.
+     */
     public static int getFluidSlotCount(EntityRef entity) {
         FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
         if (fluidInventoryComponent != null) {

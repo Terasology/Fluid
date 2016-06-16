@@ -28,6 +28,7 @@ public class FluidContainerItemComponent implements Component, ItemDifferentiati
     @Replicate
     public String fluidType;
     public float volume;
+    public float maxVolume;
     public Vector2f fluidMinPerc;
     public Vector2f fluidSizePerc;
     public TextureRegionAsset<?> textureWithHole;

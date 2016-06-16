@@ -42,6 +42,16 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     @In
     private InventoryManager inventoryManager;
 
+    /**
+     * Fill up the provided fluid container item with the current fluid interacted with in the game world.
+     *
+     * @param event             The event which has details about how this entity was activated.
+     * @param item              The reference to the item being activated.
+     * @param fluidContainer    The component used for storing fluid in a container.
+     * @param itemComponent     A component included for filtering out non-matching events. Here, we only want entities
+     *                          which are used as items.
+     *
+     */
     @ReceiveEvent
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
@@ -59,6 +69,10 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                         String fluidType = fluidRegistry.getFluidType(liquid.getType());
 
                         FluidUtils.setFluidForContainerItem(removedItem, fluidType);
+
+                        // Fill this fluid container up to max capacity.
+                        FluidContainerItemComponent container = removedItem.getComponent(FluidContainerItemComponent.class);
+                        container.volume = container.maxVolume;
 
                         if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                             removedItem.destroy();
