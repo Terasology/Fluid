@@ -46,6 +46,29 @@ public final class FluidUtils {
     }
 
     /**
+     * Sets the fluid type and the current volume of a fluid container.
+     *
+     * @param container     Reference to entity that houses the fluid container item.
+     * @param fluidType     Name of the fluid type.
+     * @param volume        The amount of fluid being set.
+     */
+    public static void setFluidForContainerItem(EntityRef container, String fluidType, float volume) {
+        FluidContainerItemComponent resultContainer = container.getComponent(FluidContainerItemComponent.class);
+        resultContainer.fluidType = fluidType;
+
+        // If the fluid type is set to null, empty the container.
+        if (fluidType == null) {
+            resultContainer.volume = 0;
+        }
+        // If it's not, set the volume of this container to the passed volume argument.
+        else {
+            resultContainer.volume = volume;
+        }
+
+        container.saveComponent(resultContainer);
+    }
+
+    /**
      * Get the fluid type of the fluid stored in this particular fluid inventory slot.
      *
      * @param entity        Reference to entity that houses the fluid inventory component.

@@ -25,10 +25,10 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.logic.common.DisplayNameComponent;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
-
 import java.util.Optional;
 
 @RegisterSystem(RegisterMode.CLIENT)
@@ -64,12 +64,25 @@ public class FluidClientSystem extends BaseComponentSystem {
                             fluidContainerItem.fluidSizePerc.x, fluidContainerItem.fluidSizePerc.y);
                     Optional<Texture> icon = assetManager.getAsset(iconUrn, Texture.class);
                     itemComp.icon = icon.isPresent() ? icon.get() : fluidContainerItem.emptyTexture;
+
+                    // Update description with new fluid amounts.
+                    DisplayNameComponent displayName = container.getComponent(DisplayNameComponent.class);
+                    displayName.description = "This holds " + (int) fluidContainerItem.volume*1000 + "/" +
+                            (int) fluidContainerItem.maxVolume*1000 + " ml of " + fluidType + ".";
+
                     container.saveComponent(itemComp);
+                    container.saveComponent(displayName);
                 }
             } else {
                 ItemComponent itemComp = container.getComponent(ItemComponent.class);
                 itemComp.icon = fluidContainerItem.emptyTexture;
+
+                // Update description.
+                DisplayNameComponent displayName = container.getComponent(DisplayNameComponent.class);
+                displayName.description = "This holds no fluid.";
+
                 container.saveComponent(itemComp);
+                container.saveComponent(displayName);
             }
         }
     }

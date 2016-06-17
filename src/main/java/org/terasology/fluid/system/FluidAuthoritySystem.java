@@ -68,11 +68,9 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     if (removedItem != null) {
                         String fluidType = fluidRegistry.getFluidType(liquid.getType());
 
-                        FluidUtils.setFluidForContainerItem(removedItem, fluidType);
-
-                        // Fill this fluid container up to max capacity.
-                        FluidContainerItemComponent container = removedItem.getComponent(FluidContainerItemComponent.class);
-                        container.volume = container.maxVolume;
+                        // Set the contents of this fluid container and fill it up to max capacity.
+                        FluidUtils.setFluidForContainerItem(removedItem, fluidType,
+                                removedItem.getComponent(FluidContainerItemComponent.class).maxVolume);
 
                         if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                             removedItem.destroy();
