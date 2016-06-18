@@ -25,10 +25,12 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
-import org.terasology.logic.common.DisplayNameComponent;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
+import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.rendering.nui.widgets.TooltipLine;
+
 import java.util.Optional;
 
 @RegisterSystem(RegisterMode.CLIENT)
@@ -37,26 +39,68 @@ public class FluidClientSystem extends BaseComponentSystem {
     @In
     private AssetManager assetManager;
 
+    /**
+     * Sets the tooltip of a fluid container.
+     *
+     * @param event                 Event that contains the tooltip lines.
+     * @param container             Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem    The fluid container item component of the entity.
+     */
+    @ReceiveEvent
+    public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+        // Add tooltip with current fluid amounts.
+        if (fluidContainerItem.fluidType != null) {
+            event.getTooltipLines().add(new TooltipLine("This holds " + (int) (fluidContainerItem.volume * 1000) + "/" +
+                    (int) (fluidContainerItem.maxVolume * 1000) + " ml of " + fluidContainerItem.fluidType + "."));
+        } else {
+            event.getTooltipLines().add(new TooltipLine("This holds no fluid."));
+        }
+    }
+
+    /**
+     * When the contents of this fluid container have been activated.
+     *
+     * @param event                 Event that indicates the activation.
+     * @param container             Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem    The fluid container item component of the entity.
+     */
     @ReceiveEvent
     public void onFluidContentsActivated(OnActivatedComponent event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         setFluidContainerIcon(container, fluidContainerItem);
     }
 
+    /**
+     * When the contents of this fluid container have been changed.
+     *
+     * @param event                 Event that indicates the activation.
+     * @param container             Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem    The fluid container item component of the entity.
+     */
     @ReceiveEvent
     public void onFluidContentsChanged(OnChangedComponent event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         setFluidContainerIcon(container, fluidContainerItem);
     }
 
+    /**
+     * Set the icon of this fluid container.
+     *
+     * @param container             Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem    The fluid container item component of the entity.
+     */
     private void setFluidContainerIcon(EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+        // If this fluid container item has the both required textures (empty and filled), and percs.
         if (fluidContainerItem.emptyTexture != null
                 && fluidContainerItem.fluidMinPerc != null
                 && fluidContainerItem.fluidSizePerc != null
                 && fluidContainerItem.textureWithHole != null) {
             String fluidType = fluidContainerItem.fluidType;
+
+            // If there's already some fluid in this container.
             if (fluidType != null) {
                 if (fluidContainerItem.textureWithHole instanceof Asset) {
                     ItemComponent itemComp = container.getComponent(ItemComponent.class);
 
+                    // Set the icon of this fluid container to show that it's filled.
                     String iconUrn = FluidContainerAssetResolver.getFluidContainerUri(
                             fluidContainerItem.textureWithHole.getUrn().toString(),
                             fluidType,
@@ -65,26 +109,14 @@ public class FluidClientSystem extends BaseComponentSystem {
                     Optional<Texture> icon = assetManager.getAsset(iconUrn, Texture.class);
                     itemComp.icon = icon.isPresent() ? icon.get() : fluidContainerItem.emptyTexture;
 
-                    // Update description with new fluid amounts.
-                    DisplayNameComponent displayName = container.getComponent(DisplayNameComponent.class);
-                    displayName.description = "This holds " + (int) fluidContainerItem.volume*1000 + "/" +
-                            (int) fluidContainerItem.maxVolume*1000 + " ml of " + fluidType + ".";
-
                     container.saveComponent(itemComp);
-                    container.saveComponent(displayName);
                 }
             } else {
                 ItemComponent itemComp = container.getComponent(ItemComponent.class);
                 itemComp.icon = fluidContainerItem.emptyTexture;
 
-                // Update description.
-                DisplayNameComponent displayName = container.getComponent(DisplayNameComponent.class);
-                displayName.description = "This holds no fluid.";
-
                 container.saveComponent(itemComp);
-                container.saveComponent(displayName);
             }
         }
     }
-
 }
