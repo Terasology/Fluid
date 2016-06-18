@@ -28,7 +28,7 @@ public final class FluidUtils {
     }
 
     /**
-     * Sets the fluid type of a fluid container.
+     * Sets the fluid type of a fluid container. This also fills the container up to capacity.
      *
      * @param container     Reference to entity that houses the fluid container item.
      * @param fluidType     Name of the fluid type.
@@ -40,6 +40,10 @@ public final class FluidUtils {
         // If the fluid type is set to null, empty the container.
         if (fluidType == null) {
             resultContainer.volume = 0;
+        }
+        else
+        {
+            resultContainer.volume = resultContainer.maxVolume;
         }
 
         container.saveComponent(resultContainer);
