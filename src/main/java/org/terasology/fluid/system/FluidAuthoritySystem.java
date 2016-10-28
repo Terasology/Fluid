@@ -76,6 +76,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                             removedItem.destroy();
                         }
                     }
+                    event.consume();
                     return;
                 }
             }
