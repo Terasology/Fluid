@@ -55,7 +55,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     @ReceiveEvent
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
-        if (fluidContainer.fluidType == null) {
+        if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
             Vector3f location = event.getInstigatorLocation();
             Vector3f direction = new Vector3f(event.getDirection());
             direction.normalize();
@@ -76,6 +76,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                             removedItem.destroy();
                         }
                     }
+                    event.consume();
                     return;
                 }
             }
