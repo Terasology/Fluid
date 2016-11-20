@@ -1,6 +1,6 @@
 {
     "id" : "Fluid",
-    "version" : "0.2.0-SNAPSHOT",
+    "version" : "1.0.0-SNAPSHOT",
     "author" : "Marcin Sciesinski <marcins78@gmail.com>",
     "displayName" : "Fluid",
     "description" : "",
