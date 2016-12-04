@@ -18,12 +18,28 @@ package org.terasology.fluid.event;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.AbstractConsumableEvent;
 
+/**
+ * This event indicates that an entity is removing a fluid in from inventory slot, and contains attributes indicating
+ * the state of the fluid before it was removed from the inventory.
+ */
 public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
+    /** The entity who is removing the fluid from the inventory */
     private EntityRef instigator;
+    /** The type of the fluid being removed from the inventory */
     private String fluidType;
+    /** The volume of the fluid being removed from the inventory */
     private float volume;
+    /** The slot number of the inventory slot from which the fluid is being removed */
     private int slot;
 
+    /**
+     * Parametrized constructor.
+     *
+     * @param instigator the entity who is removing the fluid from the inventory
+     * @param fluidType  the type of the fluid being removed from the inventory
+     * @param volume     the volume of the fluid being removed from the inventory
+     * @param slot       the slot number of the inventory slot from which the fluid is being removed
+     */
     public BeforeFluidRemovedFromInventory(EntityRef instigator, String fluidType, float volume, int slot) {
         this.instigator = instigator;
         this.fluidType = fluidType;
@@ -31,18 +47,38 @@ public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
         this.slot = slot;
     }
 
+    /**
+     * Accessor function that returns the fluid type.
+     *
+     * @return the fluid type of the fluid being removed from the inventory
+     */
     public String getFluidType() {
         return fluidType;
     }
 
+    /**
+     * Accessor function that returns the instigator of the action.
+     *
+     * @return an EntityRef to the entity who is removing the fluid from the inventory
+     */
     public EntityRef getInstigator() {
         return instigator;
     }
 
+    /**
+     * Accessor function that returns the slot number of the slot from which the fluid is being removed.
+     *
+     * @return the slot number of the inventory slot from which the fluid is being removed
+     */
     public int getSlot() {
         return slot;
     }
 
+    /**
+     * Accessor function that returns the volume of the fluid being removed from the inventory.
+     *
+     * @return the volume of the fluid being removed from the inventory
+     */
     public float getVolume() {
         return volume;
     }

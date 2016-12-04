@@ -20,12 +20,24 @@ import org.terasology.rendering.assets.texture.TextureRegion;
 import org.terasology.rendering.nui.Canvas;
 
 /**
- * @author Marcin Sciesinski <marcins78@gmail.com>
+ * A generic fluid renderer interface.
  */
 public interface FluidRenderer {
+    /**
+     * Accessor function that returns the renderer's texture.
+     */
     TextureRegion getTexture();
 
+    /**
+     * Draws the texture in a given region on a given canvas.
+     *
+     * @param canvas the canvas to be drawn on
+     * @param region the region on the canvas on which the texture is to be drawn
+     */
     void renderFluid(Canvas canvas, Rect2i region);
 
+    /**
+     * Accessor function that returns the name of the fluid being rendered.
+     */
     String getFluidName();
 }

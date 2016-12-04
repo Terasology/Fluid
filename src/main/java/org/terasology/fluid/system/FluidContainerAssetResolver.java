@@ -39,7 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * @author Marcin Sciesinski <marcins78@gmail.com>
+ * This class contains methods for handling and resolving assets.
  */
 @RegisterAssetDataProducer
 public class FluidContainerAssetResolver implements AssetDataProducer<TextureData> {
@@ -49,10 +49,26 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
 
     private final AssetManager assetManager;
 
+    /**
+     * Parametrized constructor.
+     *
+     * @param assetManager the asset manager to be used for asset resolution
+     */
     public FluidContainerAssetResolver(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
 
+    /**
+     * Generates a URI for a texture with specific fluid type and co-ordinate bounds.
+     *
+     * @param textureUri the name of the texture whose URI is to be generated
+     * @param fluidType  the type of the fluid whose texture's URI is to be generated
+     * @param minPercX   the X co-ordinate where the fluid 'filling' should start
+     * @param minPercY   the Y co-ordinate where the fluid 'filling' should start
+     * @param sizePercX  the X co-ordinate where the fluid 'filling' should end
+     * @param sizePercY  the Y co-ordinate where the fluid 'filling' should end
+     * @return           the URI to the required texture
+     */
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
                                               float sizePercX, float sizePercY) {
         StringBuilder sb = new StringBuilder();
@@ -67,12 +83,23 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         return sb.toString();
     }
 
-
+    /**
+     * Get a set of all available asset URNs
+     *
+     * @return a set of available asset URNs
+     */
     @Override
     public Set<ResourceUrn> getAvailableAssetUrns() {
         return Collections.emptySet();
     }
 
+    /**
+     * Returns the names of the modules for which this system can produce asset data with the given resource name.
+     *
+     * @param resourceName the name of the resource
+     * @return             a set of the names of modules for which this system can produce asset data with the given
+     *                     resource name
+     */
     @Override
     public Set<Name> getModulesProviding(Name resourceName) {
         if (!resourceName.toLowerCase().startsWith("fluid(")) {
@@ -81,11 +108,24 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         return ImmutableSet.of(FLUID_MODULE);
     }
 
+    /**
+     * Redirects a given asset URN.
+     *
+     * @param urn the URN to be redirected
+     * @return    the redirected URN
+     */
     @Override
     public ResourceUrn redirect(ResourceUrn urn) {
         return urn;
     }
 
+    /**
+     * Fetches asset data from a given URN.
+     *
+     * @param urn          the URN from where data is to be fetched
+     * @return             the asset data that has been fetched
+     * @throws IOException if an input or output error occured
+     */
     @Override
     public Optional<TextureData> getAssetData(ResourceUrn urn) throws IOException {
         final String assetName = urn.getResourceName().toString().toLowerCase();

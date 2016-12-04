@@ -22,18 +22,31 @@ import org.terasology.network.Replicate;
 import org.terasology.rendering.assets.texture.TextureRegionAsset;
 
 /**
- * @author Marcin Sciesinski <marcins78@gmail.com>
+ * This component indicates that an entity is a container capable of holding fluids.
  */
 public class FluidContainerItemComponent implements Component, ItemDifferentiating {
+    /** The type of the fluid it can contain */
     @Replicate
     public String fluidType;
+    /** The current volume of fluid in the container */
     public float volume;
+    /** The maximum volume of fluid that the container can contain */
     public float maxVolume;
+    /** The coordinate where the fluid 'filling' should start */
     public Vector2f fluidMinPerc;
+    /** The coordinate where the fluid 'filling' should end */
     public Vector2f fluidSizePerc;
+    /** The texture of the container when it is completely filled */
     public TextureRegionAsset<?> textureWithHole;
+    /** The texture of the container when it is empty */
     public TextureRegionAsset<?> emptyTexture;
 
+    /**
+     * Checks whether the fluid container's attributes are the same as those of a given object.
+     *
+     * @param o the Object to compare the fluid container to
+     * @return (boolean) whether the fluid container's attributes are the same as that of the given object
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {

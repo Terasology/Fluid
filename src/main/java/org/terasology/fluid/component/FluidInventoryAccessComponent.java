@@ -20,6 +20,9 @@ import org.terasology.math.IntegerRange;
 
 import java.util.Map;
 
+/**
+ * A component for integration with a Computer module.
+ */
 public class FluidInventoryAccessComponent implements Component {
     public Map<String, IntegerRange> input;
     public Map<String, IntegerRange> output;

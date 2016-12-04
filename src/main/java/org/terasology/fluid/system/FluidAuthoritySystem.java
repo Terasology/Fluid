@@ -31,7 +31,7 @@ import org.terasology.world.WorldProvider;
 import org.terasology.world.liquid.LiquidData;
 
 /**
- * @author Marcin Sciesinski <marcins78@gmail.com>
+ * This authority system handles how fluid items interact with the game world and how they are filled in containers.
  */
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class FluidAuthoritySystem extends BaseComponentSystem {
@@ -50,7 +50,6 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param fluidContainer    The component used for storing fluid in a container.
      * @param itemComponent     A component included for filtering out non-matching events. Here, we only want entities
      *                          which are used as items.
-     *
      */
     @ReceiveEvent
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,

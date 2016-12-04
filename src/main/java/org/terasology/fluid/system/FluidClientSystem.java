@@ -33,6 +33,9 @@ import org.terasology.rendering.nui.widgets.TooltipLine;
 
 import java.util.Optional;
 
+/**
+ * This client system handles client-side operations that occur when fluid components are changed.
+ */
 @RegisterSystem(RegisterMode.CLIENT)
 public class FluidClientSystem extends BaseComponentSystem {
 
