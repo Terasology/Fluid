@@ -35,9 +35,9 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     /**
      * Registers the fluid with a given fluid renderer.
      *
-     * @param fluidType     the type of fluid
-     * @param fluidRenderer the fluid renderer
-     * @param liquidType    the liquid type associated with the fluid
+     * @param fluidType     The type of fluid
+     * @param fluidRenderer The fluid renderer
+     * @param liquidType    The liquid type associated with the fluid
      */
     @Override
     public void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType) {
@@ -50,8 +50,8 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     /**
      * Accessor function which returns the fluid type for a given liquid type.
      *
-     * @param liquidType the liquid type
-     * @return           the fluid type associated with it
+     * @param liquidType The liquid type
+     * @return           The fluid type associated with it
      */
     @Override
     public String getFluidType(LiquidType liquidType) {
@@ -61,8 +61,8 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     /**
      * Accessor function which returns the list of fluid renderer associated with a given fluid type.
      *
-     * @param fluidType the fluid type
-     * @return          the fluid renderer associated with the fluid type
+     * @param fluidType The fluid type
+     * @return          The fluid renderer associated with the fluid type
      */
     @Override
     public FluidRenderer getFluidRenderer(String fluidType) {

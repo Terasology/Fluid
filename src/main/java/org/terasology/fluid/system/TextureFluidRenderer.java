@@ -29,8 +29,8 @@ public class TextureFluidRenderer implements FluidRenderer {
     /**
      * Parametrized constructor.
      *
-     * @param texture   the texture to be rendered
-     * @param fluidName the name of the fluid to be rendered
+     * @param texture   The texture to be rendered
+     * @param fluidName The name of the fluid to be rendered
      */
     public TextureFluidRenderer(TextureRegion texture, String fluidName) {
         this.texture = texture;
@@ -40,7 +40,7 @@ public class TextureFluidRenderer implements FluidRenderer {
     /**
      * Accessor function which returns the texture being rendered.
      *
-     * @return the texture being rendered
+     * @return The texture being rendered
      */
     @Override
     public TextureRegion getTexture() {
@@ -50,8 +50,8 @@ public class TextureFluidRenderer implements FluidRenderer {
     /**
      * Draws the texture on the given canvas, in the given region.
      *
-     * @param canvas the canvas to be drawn on
-     * @param region the region on the canvas on which the texture is to be drawn
+     * @param canvas The canvas to be drawn on
+     * @param region The region on the canvas on which the texture is to be drawn
      */
     @Override
     public void renderFluid(Canvas canvas, Rect2i region) {
@@ -61,7 +61,7 @@ public class TextureFluidRenderer implements FluidRenderer {
     /**
      * Accessor function which returns the name of the fluid being rendered.
      *
-     * @return the name of the fluid being rendered
+     * @return The name of the fluid being rendered
      */
     @Override
     public String getFluidName() {

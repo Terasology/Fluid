@@ -62,7 +62,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Parametrized constructor with a specified ID.
      *
-     * @param id the ID to assign to the fluid container
+     * @param id The ID to assign to the fluid container
      */
     public FluidContainerWidget(String id) {
         super(id);
@@ -71,7 +71,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Parametrized constructor with a specified image.
      *
-     * @param image a specified image of the fluid container
+     * @param image A specified image of the fluid container
      */
     public FluidContainerWidget(TextureRegion image) {
         this.image.set(image);
@@ -79,8 +79,8 @@ public class FluidContainerWidget extends CoreWidget {
 
     /**
      * Parametrized constructor with a specified ID and a specified image.
-     * @param id    the ID to assign to the fuid container
-     * @param image the image of the fluid container
+     * @param id    The ID to assign to the fuid container
+     * @param image The image of the fluid container
      */
     public FluidContainerWidget(String id, TextureRegion image) {
         super(id);
@@ -90,7 +90,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Defines how the fluid container widget is drawn.
      *
-     * @param canvas the canvas on which the widget is drawn
+     * @param canvas The canvas on which the widget is drawn
      */
     @Override
     public void onDraw(Canvas canvas) {
@@ -135,7 +135,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Setter function to set the entity associated with the widget.
      *
-     * @param entity the entity to associate with the widget
+     * @param entity The entity to associate with the widget
      */
     public void setEntity(EntityRef entity) {
         this.entity = entity;
@@ -144,7 +144,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Setter function to set the slot number of the slot in which the container resides.
      *
-     * @param slotNo the slot number
+     * @param slotNo The slot number
      */
     public void setSlotNo(int slotNo) {
         this.slotNo = slotNo;
@@ -153,9 +153,9 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Gets the preferred size of the widget contents.
      *
-     * @param canvas   the canvas on which the widget is to be drawn
-     * @param sizeHint the size hint passed by the NUI system
-     * @return         the preferred size of the widget
+     * @param canvas   The canvas on which the widget is to be drawn
+     * @param sizeHint The size hint passed by the NUI system
+     * @return         The preferred size of the widget
      */
     @Override
     public Vector2i getPreferredContentSize(Canvas canvas, Vector2i sizeHint) {
@@ -168,7 +168,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Accessor function which returns the image of the container widget.
      *
-     * @return the image of the container
+     * @return The image of the container
      */
     public TextureRegion getImage() {
         return image.get();
@@ -176,7 +176,8 @@ public class FluidContainerWidget extends CoreWidget {
 
     /**
      * Setter function to set the image of the container widget.
-     * @param image the image to set as the image of the widget
+     *
+     * @param image The image to set as the image of the widget
      */
     public void setImage(TextureRegion image) {
         this.image.set(image);
@@ -185,7 +186,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Setter function to set the image of the widget to a given binding.
      *
-     * @param binding the binding to set as the widget's image
+     * @param binding The binding to set as the widget's image
      */
     public void bindTexture(Binding<TextureRegion> binding) {
         this.image = binding;
@@ -194,7 +195,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Set the minimum Y co-ordinate where the widget can be drawn.
      *
-     * @param minY the minimum Y co-ordinate where the widget can be drawn
+     * @param minY The minimum Y co-ordinate where the widget can be drawn
      */
     public void setMinY(int minY) {
         this.minY = minY;
@@ -203,7 +204,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Set the maximum Y co-ordinate where the widget can be drawn.
      *
-     * @param maxY the maximum Y co-ordinate where the widget can be drawn
+     * @param maxY The maximum Y co-ordinate where the widget can be drawn
      */
     public void setMaxY(int maxY) {
         this.maxY = maxY;
@@ -212,7 +213,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Set the minimum X co-ordinate where the widget can be drawn.
      *
-     * @param minX the minimum X co-ordinate where the widget can be drawn
+     * @param minX The minimum X co-ordinate where the widget can be drawn
      */
     public void setMinX(int minX) {
         this.minX = minX;
@@ -221,7 +222,7 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Set the maximum X co-ordinate where the widget can be drawn.
      *
-     * @param maxX the maximum X co-ordinate where the widget can be drawn
+     * @param maxX The maximum X co-ordinate where the widget can be drawn
      */
     public void setMaxX(int maxX) {
         this.maxX = maxX;

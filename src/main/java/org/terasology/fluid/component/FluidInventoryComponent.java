@@ -46,8 +46,8 @@ public class FluidInventoryComponent implements Component {
     /**
      * Parametrized constructor.
      *
-     * @param numSlots      the number of slots in the fluid inventory
-     * @param maximumVolume the maximum volume of fluid that a slot can contain
+     * @param numSlots      The number of slots in the fluid inventory
+     * @param maximumVolume The maximum volume of fluid that a slot can contain
      */
     public FluidInventoryComponent(int numSlots, float maximumVolume) {
         for (int i = 0; i < numSlots; ++i) {

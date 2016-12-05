@@ -52,7 +52,7 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Parametrized constructor.
      *
-     * @param assetManager the asset manager to be used for asset resolution
+     * @param assetManager The asset manager to be used for asset resolution
      */
     public FluidContainerAssetResolver(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -61,13 +61,13 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Generates a URI for a texture with specific fluid type and co-ordinate bounds.
      *
-     * @param textureUri the name of the texture whose URI is to be generated
-     * @param fluidType  the type of the fluid whose texture's URI is to be generated
-     * @param minPercX   the X co-ordinate where the fluid 'filling' should start
-     * @param minPercY   the Y co-ordinate where the fluid 'filling' should start
-     * @param sizePercX  the X co-ordinate where the fluid 'filling' should end
-     * @param sizePercY  the Y co-ordinate where the fluid 'filling' should end
-     * @return           the URI to the required texture
+     * @param textureUri The name of the texture whose URI is to be generated
+     * @param fluidType  The type of the fluid whose texture's URI is to be generated
+     * @param minPercX   The X co-ordinate where the fluid 'filling' should start
+     * @param minPercY   The Y co-ordinate where the fluid 'filling' should start
+     * @param sizePercX  The X co-ordinate where the fluid 'filling' should end
+     * @param sizePercY  The Y co-ordinate where the fluid 'filling' should end
+     * @return           The URI to the required texture
      */
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
                                               float sizePercX, float sizePercY) {
@@ -86,7 +86,7 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Get a set of all available asset URNs
      *
-     * @return a set of available asset URNs
+     * @return A set of available asset URNs
      */
     @Override
     public Set<ResourceUrn> getAvailableAssetUrns() {
@@ -96,8 +96,8 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Returns the names of the modules for which this system can produce asset data with the given resource name.
      *
-     * @param resourceName the name of the resource
-     * @return             a set of the names of modules for which this system can produce asset data with the given
+     * @param resourceName The name of the resource
+     * @return             A set of the names of modules for which this system can produce asset data with the given
      *                     resource name
      */
     @Override
@@ -111,8 +111,8 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Redirects a given asset URN.
      *
-     * @param urn the URN to be redirected
-     * @return    the redirected URN
+     * @param urn The URN to be redirected
+     * @return    The redirected URN
      */
     @Override
     public ResourceUrn redirect(ResourceUrn urn) {
@@ -122,9 +122,9 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     /**
      * Fetches asset data from a given URN.
      *
-     * @param urn          the URN from where data is to be fetched
-     * @return             the asset data that has been fetched
-     * @throws IOException if an input or output error occured
+     * @param urn          The URN from where data is to be fetched
+     * @return             The asset data that has been fetched
+     * @throws IOException If an input or output error occured
      */
     @Override
     public Optional<TextureData> getAssetData(ResourceUrn urn) throws IOException {

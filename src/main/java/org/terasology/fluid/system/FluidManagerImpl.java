@@ -41,11 +41,11 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Adds a fluid to all fluid inventory slots.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param container     the entity that houses the fluid inventory
-     * @param fluidType     the type of fluid being added
-     * @param volume        the volume of fluid being added
-     * @return              whether the fluid was added successfully
+     * @param instigator    The entity that's instigating this action
+     * @param container     The entity that houses the fluid inventory
+     * @param fluidType     The type of fluid being added
+     * @param volume        The volume of fluid being added
+     * @return              Whether the fluid was added successfully
      */
     @Override
     public boolean addFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
@@ -119,12 +119,12 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Add a certain volume of fluid to a particular fluid inventory slot.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param container     the entity that houses the fluid inventory
-     * @param slot          the slot number of the fluid inventory that's intended to be filled
-     * @param fluidType     the type of fluid being added
-     * @param volume        the volume of fluid being added
-     * @return              whether the fluid was added successfully
+     * @param instigator    The entity that's instigating this action
+     * @param container     The entity that houses the fluid inventory
+     * @param slot          The slot number of the fluid inventory that's intended to be filled
+     * @param fluidType     The type of fluid being added
+     * @param volume        The volume of fluid being added
+     * @return              Whether the fluid was added successfully
      */
     @Override
     public boolean addFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
@@ -187,13 +187,13 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Add fluid to a particular fluid inventory slot from a fluid holder.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param inventory     the entity that houses the fluid inventory
-     * @param holder        the entity that houses the fluid holder that the fluid's being transferred from
-     * @param slot          the slot number of the fluid inventory that's intended to be filled
-     * @param fluidType     the type of fluid being added
-     * @param volume        the volume of fluid being added
-     * @return              whether the fluid was added successfully
+     * @param instigator    The entity that's instigating this action
+     * @param inventory     The entity that houses the fluid inventory
+     * @param holder        The entity that houses the fluid holder that the fluid's being transferred from
+     * @param slot          The slot number of the fluid inventory that's intended to be filled
+     * @param fluidType     The type of fluid being added
+     * @param volume        The volume of fluid being added
+     * @return              Whether the fluid was added successfully
      */
     @Override
     public boolean addFluidFromHolder(EntityRef instigator, EntityRef inventory, EntityRef holder, int slot, String fluidType, float volume) {
@@ -267,11 +267,11 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from all fluid inventory slots.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param container     the entity that houses the fluid inventory
-     * @param fluidType     the type of fluid being removed
-     * @param volume        the volume of fluid being removed
-     * @return              whether the fluid was removed successfully
+     * @param instigator    The entity that's instigating this action
+     * @param container     The entity that houses the fluid inventory
+     * @param fluidType     The type of fluid being removed
+     * @param volume        The volume of fluid being removed
+     * @return              Whether the fluid was removed successfully
      */
     @Override
     public boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
@@ -293,12 +293,12 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from a particular fluid inventory slot.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param container     the entity that houses the fluid inventory
-     * @param slot          the slot number of the fluid inventory that's intended to be used
-     * @param fluidType     the type of fluid being removed
-     * @param volume        the volume of fluid being removed
-     * @return              whether the fluid was removed successfully
+     * @param instigator    The entity that's instigating this action
+     * @param container     The entity that houses the fluid inventory
+     * @param slot          The slot number of the fluid inventory that's intended to be used
+     * @param fluidType     The type of fluid being removed
+     * @param volume        The volume of fluid being removed
+     * @return              Whether the fluid was removed successfully
      */
     @Override
     public boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
@@ -324,14 +324,14 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from a particular fluid container.
      *
-     * @param instigator     the instigator of this action
-     * @param container      the container from which the fluid is being removed
-     * @param fluidType      the type of fluid being removed
-     * @param slot           the inventory slot containing the container from which the fluid is being removed
-     * @param volume         the volume of fluid being removed
-     * @param fluidInventory the fluid inventory containing the fluid being removed
-     * @param fluidEntity    an entity reference to the fluid being removed
-     * @param fluid          the fluid component of the fluid being removed
+     * @param instigator     The instigator of this action
+     * @param container      The container from which the fluid is being removed
+     * @param fluidType      The type of fluid being removed
+     * @param slot           The inventory slot containing the container from which the fluid is being removed
+     * @param volume         The volume of fluid being removed
+     * @param fluidInventory The fluid inventory containing the fluid being removed
+     * @param fluidEntity    An entity reference to the fluid being removed
+     * @param fluid          The fluid component of the fluid being removed
      */
     private void removeFluidFromContainer(EntityRef instigator, EntityRef container, String fluidType, int slot, float volume,
                                           FluidInventoryComponent fluidInventory, EntityRef fluidEntity, FluidComponent fluid) {
@@ -353,14 +353,14 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Transfer fluid from one fluid inventory slot to another.
      *
-     * @param instigator    the entity that's instigating this action
-     * @param from          the entity that houses the source fluid inventory
-     * @param to            the entity that houses the destination fluid inventory
-     * @param slotFrom      the slot number of the source fluid inventory that's intended to be used
-     * @param fluidType     the type of fluid being transferred
-     * @param slotTo        the slot number of the destination fluid inventory that's intended to be used
-     * @param volume        the volume of fluid being transferred
-     * @return              the amount of fluid that was moved successfully
+     * @param instigator    The entity that's instigating this action
+     * @param from          The entity that houses the source fluid inventory
+     * @param to            The entity that houses the destination fluid inventory
+     * @param slotFrom      The slot number of the source fluid inventory that's intended to be used
+     * @param fluidType     The type of fluid being transferred
+     * @param slotTo        The slot number of the destination fluid inventory that's intended to be used
+     * @param volume        The volume of fluid being transferred
+     * @return              The amount of fluid that was moved successfully
      */
     @Override
     public float moveFluid(EntityRef instigator, EntityRef from, EntityRef to, int slotFrom, String fluidType, int slotTo, float volume) {

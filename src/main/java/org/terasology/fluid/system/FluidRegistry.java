@@ -24,23 +24,23 @@ public interface FluidRegistry {
     /**
      * Registers a fluid with a fluid renderer.
      *
-     * @param fluidType     the type of fluid
-     * @param fluidRenderer the fluid renderer
-     * @param liquidType    the liquid type associated with the fluid
+     * @param fluidType     The type of fluid
+     * @param fluidRenderer The fluid renderer
+     * @param liquidType    The liquid type associated with the fluid
      */
     void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType);
 
     /**
      * Accessor function which returns the list of fluid renderer associated with a given fluid type.
      *
-     * @param fluidType the fluid type
+     * @param fluidType The fluid type
      */
     FluidRenderer getFluidRenderer(String fluidType);
 
     /**
      * Accessor function which returns the fluid type for a given liquid type.
      *
-     * @param liquidType the liquid type
+     * @param liquidType The liquid type
      */
     String getFluidType(LiquidType liquidType);
 }

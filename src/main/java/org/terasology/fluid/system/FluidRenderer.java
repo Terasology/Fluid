@@ -31,8 +31,8 @@ public interface FluidRenderer {
     /**
      * Draws the texture in a given region on a given canvas.
      *
-     * @param canvas the canvas to be drawn on
-     * @param region the region on the canvas on which the texture is to be drawn
+     * @param canvas The canvas to be drawn on
+     * @param region The region on the canvas on which the texture is to be drawn
      */
     void renderFluid(Canvas canvas, Rect2i region);
 

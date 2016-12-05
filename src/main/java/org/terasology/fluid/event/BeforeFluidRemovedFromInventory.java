@@ -23,22 +23,26 @@ import org.terasology.entitySystem.event.AbstractConsumableEvent;
  * the state of the fluid before it was removed from the inventory.
  */
 public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
+
     /** The entity who is removing the fluid from the inventory */
     private EntityRef instigator;
+
     /** The type of the fluid being removed from the inventory */
     private String fluidType;
+
     /** The volume of the fluid being removed from the inventory */
     private float volume;
+
     /** The slot number of the inventory slot from which the fluid is being removed */
     private int slot;
 
     /**
      * Parametrized constructor.
      *
-     * @param instigator the entity who is removing the fluid from the inventory
-     * @param fluidType  the type of the fluid being removed from the inventory
-     * @param volume     the volume of the fluid being removed from the inventory
-     * @param slot       the slot number of the inventory slot from which the fluid is being removed
+     * @param instigator The entity who is removing the fluid from the inventory
+     * @param fluidType  The type of the fluid being removed from the inventory
+     * @param volume     The volume of the fluid being removed from the inventory
+     * @param slot       The slot number of the inventory slot from which the fluid is being removed
      */
     public BeforeFluidRemovedFromInventory(EntityRef instigator, String fluidType, float volume, int slot) {
         this.instigator = instigator;
@@ -50,7 +54,7 @@ public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the fluid type.
      *
-     * @return the fluid type of the fluid being removed from the inventory
+     * @return The fluid type of the fluid being removed from the inventory
      */
     public String getFluidType() {
         return fluidType;
@@ -59,7 +63,7 @@ public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the instigator of the action.
      *
-     * @return an EntityRef to the entity who is removing the fluid from the inventory
+     * @return An EntityRef to the entity who is removing the fluid from the inventory
      */
     public EntityRef getInstigator() {
         return instigator;
@@ -68,7 +72,7 @@ public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the slot number of the slot from which the fluid is being removed.
      *
-     * @return the slot number of the inventory slot from which the fluid is being removed
+     * @return The slot number of the inventory slot from which the fluid is being removed
      */
     public int getSlot() {
         return slot;
@@ -77,7 +81,7 @@ public class BeforeFluidRemovedFromInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the volume of the fluid being removed from the inventory.
      *
-     * @return the volume of the fluid being removed from the inventory
+     * @return The volume of the fluid being removed from the inventory
      */
     public float getVolume() {
         return volume;

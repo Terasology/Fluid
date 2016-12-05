@@ -19,26 +19,30 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.AbstractConsumableEvent;
 
 /**
- * This event indicates that an entity is putting a fluid in an inventory slot, and contains attributes indicating the
- * state of the fluid before it was put in the inventory.
+ * This event indicates that an entity is placing a fluid in an inventory slot, and contains attributes indicating the
+ * state of the fluid before it was placed in the inventory.
  */
 public class BeforeFluidPutInInventory extends AbstractConsumableEvent {
-    /** The entity who is putting the fluid in the inventory */
+
+    /** The entity which is placing the fluid in the inventory */
     private EntityRef instigator;
-    /** The type of the fluid being put in the inventory */
+
+    /** The type of the fluid being placed in the inventory */
     private String fluidType;
-    /** The volume of the fluid being put in the inventory */
+
+    /** The volume of the fluid being placed in the inventory */
     private float volume;
-    /** The slot number of the inventory slot in which the fluid is being put */
+
+    /** The slot number of the inventory slot in which the fluid is being placed */
     private int slot;
 
     /**
      * Parametrized constructor.
      *
-     * @param instigator the entity who is putting the fluid in the inventory
-     * @param fluidType  the type of the fluid being put in the inventory
-     * @param volume     the volume of the fluid being put in the inventory
-     * @param slot       the slot number of the inventory slot in which the fluid is being put
+     * @param instigator The entity which is placing the fluid in the inventory
+     * @param fluidType  The type of the fluid being placed in the inventory
+     * @param volume     The volume of the fluid being placed in the inventory
+     * @param slot       The slot number of the inventory slot in which the fluid is being placed
      */
     public BeforeFluidPutInInventory(EntityRef instigator, String fluidType, float volume, int slot) {
         this.instigator = instigator;
@@ -50,7 +54,7 @@ public class BeforeFluidPutInInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the fluid type.
      *
-     * @return the fluid type of the fluid being put in the inventory
+     * @return The fluid type of the fluid being placed in the inventory
      */
     public String getFluidType() {
         return fluidType;
@@ -59,25 +63,25 @@ public class BeforeFluidPutInInventory extends AbstractConsumableEvent {
     /**
      * Accessor function that returns the instigator of the action.
      *
-     * @return an EntityRef to the entity who is putting the fluid in the inventory
+     * @return An EntityRef to the entity which is placing the fluid in the inventory
      */
     public EntityRef getInstigator() {
         return instigator;
     }
 
     /**
-     * Accessor function that returns the slot number of the slot in which the fluid is being put.
+     * Accessor function that returns the slot number of the slot in which the fluid is being placed.
      *
-     * @return the slot number of the inventory slot in which the fluid is being put
+     * @return The slot number of the inventory slot in which the fluid is being placed
      */
     public int getSlot() {
         return slot;
     }
 
     /**
-     * Accessor function that returns the volume of the fluid being put in the inventory.
+     * Accessor function that returns the volume of the fluid being placed in the inventory.
      *
-     * @return the volume of the fluid being put in the inventory
+     * @return The volume of the fluid being placed in the inventory
      */
     public float getVolume() {
         return volume;
