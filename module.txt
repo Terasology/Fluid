@@ -3,7 +3,7 @@
     "version" : "1.0.0-SNAPSHOT",
     "author" : "Marcin Sciesinski <marcins78@gmail.com>, Mandar Juvekar",
     "displayName" : "Fluid",
-    "description" : "",
+    "description" : "A module for simulating the behaviors of fluids (substances that flow). Not for liquids (natural water, lava, etc).",
     "dependencies" : [
             {
                 "id" : "Core",
