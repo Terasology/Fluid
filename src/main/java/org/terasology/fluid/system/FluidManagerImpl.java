@@ -172,6 +172,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 fluidComponent.volume = Math.min(maximumVolume, volume);
 
                 EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                newFluidEntity.addComponent(new NetworkComponent());
                 fluidInventory.fluidSlots.set(slot, newFluidEntity);
                 container.saveComponent(fluidInventory);
 
@@ -251,6 +252,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 fluidHolder.volume = Math.max(0f, fluidHolder.volume - maximumVolume);
 
                 EntityRef newFluidEntity = entityManager.create(fluidComponent);
+                newFluidEntity.addComponent(new NetworkComponent());
                 fluidInventory.fluidSlots.set(slot, newFluidEntity);
                 inventory.saveComponent(fluidInventory);
                 holder.saveComponent(fluidHolder);
@@ -421,6 +423,7 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             fluidComponent.volume = volumeToMove;
 
             EntityRef newFluidEntity = entityManager.create(fluidComponent);
+            newFluidEntity.addComponent(new NetworkComponent());
             fluidInventoryTo.fluidSlots.set(slotTo, newFluidEntity);
             to.saveComponent(fluidInventoryTo);
         } else {
