@@ -24,7 +24,6 @@ import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureUtil;
 import org.terasology.rendering.nui.Color;
-import org.terasology.world.liquid.LiquidType;
 
 /**
  * This system is used to initialize fluid systems at launch time.
@@ -45,6 +44,6 @@ public class FluidCommonSystem extends BaseComponentSystem {
         ResourceUrn waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
         Texture texture = assetManager.getAsset(waterTextureUri, Texture.class).get();
 
-        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(texture, "water"), LiquidType.WATER);
+        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(texture, "water"));
     }
 }

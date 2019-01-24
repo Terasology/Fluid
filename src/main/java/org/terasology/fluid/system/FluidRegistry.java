@@ -15,8 +15,6 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.world.liquid.LiquidType;
-
 /**
  * A generic fluid registry interface.
  */
@@ -26,9 +24,8 @@ public interface FluidRegistry {
      *
      * @param fluidType     The type of fluid
      * @param fluidRenderer The fluid renderer
-     * @param liquidType    The liquid type associated with the fluid
      */
-    void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType);
+    void registerFluid(String fluidType, FluidRenderer fluidRenderer);
 
     /**
      * Accessor function which returns the list of fluid renderer associated with a given fluid type.
@@ -37,10 +34,4 @@ public interface FluidRegistry {
      */
     FluidRenderer getFluidRenderer(String fluidType);
 
-    /**
-     * Accessor function which returns the fluid type for a given liquid type.
-     *
-     * @param liquidType The liquid type
-     */
-    String getFluidType(LiquidType liquidType);
 }

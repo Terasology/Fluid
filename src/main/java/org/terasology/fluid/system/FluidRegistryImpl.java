@@ -18,7 +18,6 @@ package org.terasology.fluid.system;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.Share;
-import org.terasology.world.liquid.LiquidType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,39 +29,24 @@ import java.util.Map;
 @Share(FluidRegistry.class)
 public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegistry {
     private Map<String, FluidRenderer> fluidRenderers = new HashMap<>();
-    private Map<LiquidType, String> liquidMapping = new HashMap<>();
 
     /**
      * Registers the fluid with a given fluid renderer.
      *
      * @param fluidType     The type of fluid
      * @param fluidRenderer The fluid renderer
-     * @param liquidType    The liquid type associated with the fluid
      */
     @Override
-    public void registerFluid(String fluidType, FluidRenderer fluidRenderer, LiquidType liquidType) {
+    public void registerFluid(String fluidType, FluidRenderer fluidRenderer) {
         fluidRenderers.put(fluidType.toLowerCase(), fluidRenderer);
-        if (liquidType != null) {
-            liquidMapping.put(liquidType, fluidType.toLowerCase());
-        }
-    }
 
-    /**
-     * Accessor function which returns the fluid type for a given liquid type.
-     *
-     * @param liquidType The liquid type
-     * @return           The fluid type associated with it
-     */
-    @Override
-    public String getFluidType(LiquidType liquidType) {
-        return liquidMapping.get(liquidType);
     }
 
     /**
      * Accessor function which returns the list of fluid renderer associated with a given fluid type.
      *
      * @param fluidType The fluid type
-     * @return          The fluid renderer associated with the fluid type
+     * @return The fluid renderer associated with the fluid type
      */
     @Override
     public FluidRenderer getFluidRenderer(String fluidType) {
