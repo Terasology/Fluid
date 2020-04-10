@@ -18,6 +18,7 @@ package org.terasology.fluid.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
@@ -91,7 +92,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param itemComponent  A component included for filtering out non-matching events. Here, we only want entities
      *                       which are used as items.
      */
-    @ReceiveEvent
+    @ReceiveEvent(priority= EventPriority.PRIORITY_HIGH)
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
@@ -100,9 +101,9 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
                 if (removedItem != null && block.isWater()) {
-                    // Set the contents of this fluid container and fill it up to max capacity.
+                    // Set the contents of this fluid container and fill it up to (current volume + filling amount).
                     FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water",
-                            removedItem.getComponent(FluidContainerItemComponent.class).maxVolume);
+                            removedItem.getComponent(FluidContainerItemComponent.class).volume + removedItem.getComponent(FluidContainerItemComponent.class).fillingAmount);
 
                     if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
