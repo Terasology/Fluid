@@ -100,11 +100,11 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 EntityRef owner = item.getOwner();
                 final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
+                FluidContainerItemComponent removedFluidContainer= removedItem.getComponent(FluidContainerItemComponent.class);
+                float volume= Math.min((removedFluidContainer.volume + removedFluidContainer.fillingAmount), removedFluidContainer.maxVolume);
                 if (removedItem != null && block.isWater()) {
-                    // Set the contents of this fluid container and fill it up to (current volume + filling amount).
-                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water",
-                            removedItem.getComponent(FluidContainerItemComponent.class).volume + removedItem.getComponent(FluidContainerItemComponent.class).fillingAmount);
-
+                    // Set the contents of this fluid container and fill it up to (current volume + filling amount) or maxVolume whichever is less.
+                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water", volume);
                     if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
                     }
