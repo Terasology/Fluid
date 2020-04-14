@@ -92,7 +92,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param itemComponent  A component included for filtering out non-matching events. Here, we only want entities
      *                       which are used as items.
      */
-    @ReceiveEvent(priority= EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent(priority= EventPriority.PRIORITY_LOW + 10)
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
