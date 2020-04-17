@@ -18,7 +18,6 @@ package org.terasology.fluid.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
@@ -26,6 +25,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.logic.chat.ChatMessageEvent;
 import org.terasology.logic.common.ActivateEvent;
+import org.terasology.logic.common.DisplayNameComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.math.geom.Vector3f;
@@ -107,10 +107,11 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     removedFluidContainer.fillingAmount = removedFluidContainer.maxVolume;
                 }
                 float volume= Math.min((removedFluidContainer.volume + removedFluidContainer.fillingAmount), removedFluidContainer.maxVolume);
+                DisplayNameComponent displayNameComponent = item.getComponent(DisplayNameComponent.class);
                 if (removedItem != null && block.isWater()) {
                     // Set the contents of this fluid container and fill it up to (current volume + filling amount).
                     FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water", volume);
-                    owner2.send(new ChatMessageEvent("Fluid container filled to volume: "+ volume + " / " + removedFluidContainer.maxVolume + " ml.", owner2));
+                    owner2.send(new ChatMessageEvent( displayNameComponent.name + " filled to volume: "+ volume + " / " + removedFluidContainer.maxVolume + " ml.", owner2));
                     if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
                     }
