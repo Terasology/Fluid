@@ -18,11 +18,13 @@ package org.terasology.fluid.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.logic.chat.ChatMessageEvent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
@@ -97,13 +99,18 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
             getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(block -> {
                 EntityRef owner = item.getOwner();
+                EntityRef owner2 = owner.getOwner();
                 final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
+                FluidContainerItemComponent removedFluidContainer= removedItem.getComponent(FluidContainerItemComponent.class);
+                if(removedFluidContainer.fillingAmount == 0) {                                // not defined
+                    removedFluidContainer.fillingAmount = removedFluidContainer.maxVolume;
+                }
+                float volume= Math.min((removedFluidContainer.volume + removedFluidContainer.fillingAmount), removedFluidContainer.maxVolume);
                 if (removedItem != null && block.isWater()) {
-                    // Set the contents of this fluid container and fill it up to max capacity.
-                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water",
-                            removedItem.getComponent(FluidContainerItemComponent.class).maxVolume);
-
+                    // Set the contents of this fluid container and fill it up to (current volume + filling amount).
+                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water", volume);
+                    owner2.send(new ChatMessageEvent("Fluid container filled to volume: "+ volume + " / " + removedFluidContainer.maxVolume + " ml.", owner2));
                     if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
                     }

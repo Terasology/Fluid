@@ -36,6 +36,9 @@ public class FluidContainerItemComponent implements Component, ItemDifferentiati
     /** The maximum volume of fluid that the container can contain */
     public float maxVolume;
 
+    /** The volume of liquid added to the container in one click */
+    public float fillingAmount;
+
     /** The coordinate where the fluid 'filling' should start */
     public Vector2f fluidMinPerc;
 
