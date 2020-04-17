@@ -15,6 +15,7 @@
  */
 package org.terasology.fluid.system;
 
+import org.mockito.internal.matchers.Null;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -98,12 +99,12 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
             getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(block -> {
-                EntityRef owner = item.getOwner();
-                EntityRef owner2 = owner.getOwner();
-                final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+                EntityRef player = item.getOwner();
+                EntityRef client = player.getOwner();
+                final EntityRef removedItem = inventoryManager.removeItem(player, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
                 FluidContainerItemComponent removedFluidContainer= removedItem.getComponent(FluidContainerItemComponent.class);
-                if(removedFluidContainer.fillingAmount == 0) {                                // not defined
+                if(removedFluidContainer.fillingAmount <= 0) {                                // not defined
                     removedFluidContainer.fillingAmount = removedFluidContainer.maxVolume;
                 }
                 float volume= Math.min((removedFluidContainer.volume + removedFluidContainer.fillingAmount), removedFluidContainer.maxVolume);
@@ -111,8 +112,10 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 if (removedItem != null && block.isWater()) {
                     // Set the contents of this fluid container and fill it up to (current volume + filling amount).
                     FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water", volume);
-                    owner2.send(new ChatMessageEvent( displayNameComponent.name + " filled to volume: "+ volume + " / " + removedFluidContainer.maxVolume + " ml.", owner2));
-                    if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                    if(displayNameComponent != null) {
+                        client.send(new ChatMessageEvent(displayNameComponent.name + " filled to volume: " + volume + " / " + removedFluidContainer.maxVolume + " ml.", client));
+                    }
+                    if (!inventoryManager.giveItem(player, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
                     }
                 }
