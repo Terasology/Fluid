@@ -22,6 +22,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.flowingliquids.world.block.LiquidData;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryManager;
@@ -31,9 +32,12 @@ import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockManager;
+import org.terasology.world.chunks.blockdata.ExtraBlockDataManager;
 
 import java.math.RoundingMode;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * This authority system handles how fluid items interact with the game world and how they are filled in containers.
@@ -52,6 +56,24 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private FluidRegistry fluidRegistry;
     @In
     private InventoryManager inventoryManager;
+    
+    @In
+    private BlockManager blockManager;
+    private Block air;
+    
+    @In
+    private ExtraBlockDataManager extraDataManager;
+    private int flowIx;
+    
+    private static final float fluidPerBlock = 1000;
+    private Random rand;
+    
+    @Override
+    public void initialise() {
+        air = blockManager.getBlock(BlockManager.AIR_ID);
+        flowIx = extraDataManager.getSlotNumber("flowingLiquids.flow");
+        rand = new Random();
+    }
 
     /**
      * Search for a reachable liquid block in the given direction.
@@ -66,14 +88,15 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      *
      * @return option of the liquid block found in reach, empty if none was found
      */
-    private Optional<Block> getLiquidInReach(final Vector3f start, final Vector3f direction, int distance) {
+    private Optional<Vector3i> getLiquidInReach(final Vector3f start, final Vector3f direction, int distance) {
         Vector3f location = new Vector3f(start);
         Vector3f normalizedDirection = new Vector3f(direction).normalize();
         for (int i = 0; i < distance; i++) {
             location.add(normalizedDirection);
-            Block block = worldProvider.getBlock(new Vector3i(location, RoundingMode.HALF_DOWN));
+            Vector3i intLocation = new Vector3i(location, RoundingMode.HALF_DOWN);
+            Block block = worldProvider.getBlock(intLocation);
             if (block.isLiquid()) {
-                return Optional.of(block);
+                return Optional.of(intLocation);
             }
             if (!block.isPenetrable()) {
                 return Optional.empty();
@@ -95,21 +118,44 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
-            getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(block -> {
+            getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(pos -> {
                 EntityRef owner = item.getOwner();
                 final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
-                if (removedItem != null && block.isWater()) {
+                if (removedItem != null && worldProvider.getBlock(pos).isWater()) {
+                    byte liquidData = (byte) worldProvider.getExtraData(flowIx, pos);
+                    float blockAmount = LiquidData.getHeight(liquidData) * fluidPerBlock / LiquidData.MAX_HEIGHT;
+                    
+                    FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+                    float totalAmount = blockAmount + fluidComponent.volume;
+                    if (totalAmount > fluidComponent.maxVolume) {
+                        blockAmount = totalAmount - fluidComponent.maxVolume;
+                        totalAmount = fluidComponent.maxVolume;
+                    } else {
+                        blockAmount = 0;
+                    }
                     // Set the contents of this fluid container and fill it up to max capacity.
-                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water",
-                            removedItem.getComponent(FluidContainerItemComponent.class).maxVolume);
+                    FluidUtils.setFluidForContainerItem(removedItem, "Fluid:Water", totalAmount);
 
                     if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                         removedItem.destroy();
+                    }
+                    
+                    // This will be less than the original liquid height, unless the container somehow started off overfull.
+                    int liquidHeight = randomRound(blockAmount * LiquidData.MAX_HEIGHT / fluidPerBlock);
+                    if (liquidHeight > 0) {
+                        worldProvider.setExtraData(flowIx, pos, LiquidData.setHeight(liquidData, liquidHeight));
+                    } else {
+                        worldProvider.setBlock(pos, air);
                     }
                 }
                 event.consume();
             });
         }
+    }
+    
+    // Round to an integer in a way that has 0 error on average for any given argument.
+    private int randomRound(float x) {
+        return (int) Math.floor(x + rand.nextFloat());
     }
 }

@@ -5,7 +5,8 @@
     "displayName": "Fluid",
     "description": "This library module allows to manage fluids with items and containers.",
     "dependencies": [
-        { "id": "Inventory", "minVersion": "1.1.0" }
+        { "id": "Inventory", "minVersion": "1.1.0" },
+        { "id": "FlowingLiquids", "minVersion": "1.0.0" }
     ],
     "isServerSideOnly": false,
     "isLibrary": true
