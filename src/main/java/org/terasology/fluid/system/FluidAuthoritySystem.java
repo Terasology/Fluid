@@ -65,13 +65,17 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private ExtraBlockDataManager extraDataManager;
     private int flowIx;
     
-    private static final float fluidPerBlock = 1000;
+    /**
+     * If one block is 1m across, the fluid units are litres. This works reasonably
+     * sensibly with the pre-existing container sizes in ManualLabor.
+     */
+    private static final float FLUID_PER_BLOCK = 1000;
     private Random rand;
     
     @Override
     public void initialise() {
         air = blockManager.getBlock(BlockManager.AIR_ID);
-        flowIx = extraDataManager.getSlotNumber("flowingLiquids.flow");
+        flowIx = extraDataManager.getSlotNumber(LiquidData.EXTRA_DATA_NAME);
         rand = new Random();
     }
 
@@ -124,7 +128,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
                 if (removedItem != null && worldProvider.getBlock(pos).isWater()) {
                     byte liquidData = (byte) worldProvider.getExtraData(flowIx, pos);
-                    float blockAmount = LiquidData.getHeight(liquidData) * fluidPerBlock / LiquidData.MAX_HEIGHT;
+                    float blockAmount = LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
                     
                     FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
                     float totalAmount = blockAmount + fluidComponent.volume;
@@ -142,7 +146,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     }
                     
                     // This will be less than the original liquid height, unless the container somehow started off overfull.
-                    int liquidHeight = randomRound(blockAmount * LiquidData.MAX_HEIGHT / fluidPerBlock);
+                    int liquidHeight = randomRound(blockAmount * LiquidData.MAX_HEIGHT / FLUID_PER_BLOCK);
                     if (liquidHeight > 0) {
                         worldProvider.setExtraData(flowIx, pos, LiquidData.setHeight(liquidData, liquidHeight));
                     } else {
@@ -154,7 +158,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         }
     }
     
-    // Round to an integer in a way that has 0 error on average for any given argument.
+    // Round randomly as either floor or ceiling in a way that has 0 error on average for any given argument.
     private int randomRound(float x) {
         return (int) Math.floor(x + rand.nextFloat());
     }
