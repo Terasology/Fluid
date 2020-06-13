@@ -17,6 +17,7 @@ package org.terasology.fluid.system;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.engine.ComponentSystemManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -64,6 +65,9 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     @In
     private ExtraBlockDataManager extraDataManager;
     private int flowIx;
+    @In
+    private ComponentSystemManager componentSystemManager;
+    private boolean flowingLiquidsEnabled;
     
     /**
      * If one block is 1m across, the fluid units are litres. This works reasonably
@@ -75,7 +79,10 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     @Override
     public void initialise() {
         air = blockManager.getBlock(BlockManager.AIR_ID);
-        flowIx = extraDataManager.getSlotNumber(LiquidData.EXTRA_DATA_NAME);
+        flowingLiquidsEnabled = componentSystemManager.get("FlowingLiquids:LiquidFlowSystem") != null;
+        if (flowingLiquidsEnabled) {
+            flowIx = extraDataManager.getSlotNumber(LiquidData.EXTRA_DATA_NAME);
+        }
         rand = new Random();
     }
 
@@ -127,8 +134,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                 final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 //TODO: replace with better fluid handling, maybe by new CoreFluids module
                 if (removedItem != null && worldProvider.getBlock(pos).isWater()) {
-                    byte liquidData = (byte) worldProvider.getExtraData(flowIx, pos);
-                    float blockAmount = LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
+                    float blockAmount = getLiquidInBlock(pos);
                     
                     FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
                     float totalAmount = blockAmount + fluidComponent.volume;
@@ -146,15 +152,33 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     }
                     
                     // This will be less than the original liquid height, unless the container somehow started off overfull.
-                    int liquidHeight = randomRound(blockAmount * LiquidData.MAX_HEIGHT / FLUID_PER_BLOCK);
-                    if (liquidHeight > 0) {
-                        worldProvider.setExtraData(flowIx, pos, LiquidData.setHeight(liquidData, liquidHeight));
-                    } else {
-                        worldProvider.setBlock(pos, air);
-                    }
+                    setLiquidInBlock(pos, blockAmount);
                 }
                 event.consume();
             });
+        }
+    }
+    
+    private float getLiquidInBlock(Vector3i pos) {
+        if (flowingLiquidsEnabled) {
+            byte liquidData = (byte) worldProvider.getExtraData(flowIx, pos);
+            return LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
+        } else {
+            return FLUID_PER_BLOCK;
+        }
+    }
+    
+    // Assumes that the block is already a liquid, so the block ID doesn't need to be set unless the liquid is entirely removed.
+    private void setLiquidInBlock(Vector3i pos, float fluidAmount) {
+        float blockAmount = fluidAmount / FLUID_PER_BLOCK;
+        if (flowingLiquidsEnabled) {
+            blockAmount *= LiquidData.MAX_HEIGHT;
+        }
+        int liquidLevel = randomRound(blockAmount);
+        if(liquidLevel == 0) {
+            worldProvider.setBlock(pos, air);
+        } else if (flowingLiquidsEnabled) {
+            worldProvider.setExtraData(flowIx, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
     
