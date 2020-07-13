@@ -40,6 +40,8 @@ import java.util.Optional;
 public class FluidClientSystem extends BaseComponentSystem {
 
     @In
+    private FluidRegistry fluidRegistry;
+    @In
     private AssetManager assetManager;
 
     /**
@@ -53,8 +55,8 @@ public class FluidClientSystem extends BaseComponentSystem {
     public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         // Add tooltip with current fluid amounts.
         if (fluidContainerItem.fluidType != null) {
-            event.getTooltipLines().add(new TooltipLine("This holds " + (int) (fluidContainerItem.volume * 1000) + "/" +
-                    (int) (fluidContainerItem.maxVolume * 1000) + " ml of " + fluidContainerItem.fluidType + "."));
+            event.getTooltipLines().add(new TooltipLine("This holds " + (int) fluidContainerItem.volume + "/" +
+                    (int) fluidContainerItem.maxVolume + "l of " + fluidRegistry.getDisplayName(fluidContainerItem.fluidType) + "."));
         } else {
             event.getTooltipLines().add(new TooltipLine("This holds no fluid."));
         }

@@ -24,6 +24,17 @@ import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.assets.texture.TextureUtil;
 import org.terasology.rendering.nui.Color;
+import org.terasology.utilities.Assets;
+import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockManager;
+import org.terasology.world.block.BlockPart;
+import org.terasology.world.block.BlockUri;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
+import org.terasology.world.block.loader.BlockFamilyDefinitionData;
+import org.terasology.world.block.loader.SectionDefinitionData;
+
+import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 /**
  * This system is used to initialize fluid systems at launch time.
@@ -36,14 +47,24 @@ public class FluidCommonSystem extends BaseComponentSystem {
     @In
     private AssetManager assetManager;
 
+    @In
+    private BlockManager blockManager;
+
     /**
      * Initializes fluid resources and textures at launch time.
      */
     @Override
     public void preBegin() {
-        ResourceUrn waterTextureUri = TextureUtil.getTextureUriForColor(Color.BLUE);
-        Texture texture = assetManager.getAsset(waterTextureUri, Texture.class).get();
-
-        fluidRegistry.registerFluid("Fluid:Water", new TextureFluidRenderer(texture, "water"));
+        for (ResourceUrn blockUrn : Assets.list(BlockFamilyDefinition.class)) {
+            Optional<BlockFamilyDefinition> maybeDefinition = Assets.get(blockUrn, BlockFamilyDefinition.class);
+            if (maybeDefinition.isPresent()) {
+                SectionDefinitionData blockData = maybeDefinition.get().getData().getBaseSection();
+                if (blockData.isLiquid()) {
+                    BufferedImage texture = blockData.getBlockTiles().get(BlockPart.FRONT).getImage();
+                    Block block = blockManager.getBlock(new BlockUri(blockUrn));
+                    fluidRegistry.registerFluid(blockUrn.toString(), block.getDisplayName(), texture, block);
+                }
+            }
+        }
     }
 }

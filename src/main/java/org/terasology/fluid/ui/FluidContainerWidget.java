@@ -15,12 +15,14 @@
  */
 package org.terasology.fluid.ui;
 
+import org.terasology.fluid.system.FluidContainerAssetResolver;
+import org.terasology.rendering.assets.texture.Texture;
+import org.terasology.rendering.nui.ScaleMode;
 import org.terasology.utilities.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidRegistry;
-import org.terasology.fluid.system.FluidRenderer;
 import org.terasology.math.geom.Rect2i;
 import org.terasology.math.geom.Vector2i;
 import org.terasology.registry.CoreRegistry;
@@ -101,30 +103,33 @@ public class FluidContainerWidget extends CoreWidget {
             float maxVolume = fluidInventory.maximumVolumes.get(slotNo);
             float currentVolume = 0f;
             String fluidType = null;
-            FluidRenderer fluidRenderer = null;
 
             if (fluid != null) {
                 currentVolume = fluid.volume;
                 fluidType = fluid.fluidType;
                 float result = fluid.volume / maxVolume;
 
-                fluidRenderer = fluidRegistry.getFluidRenderer(fluid.fluidType);
-
                 Vector2i size = canvas.size();
+                int fluidMinY;
+                int fluidMaxY;
+                float yPerc = 1f * (minY + result * (maxY - minY)) / texture.getHeight();
+                int y = Math.round(yPerc * size.y);
                 if (minY < maxY) {
-                    float yPerc = 1f * (minY + result * (maxY - minY)) / texture.getHeight();
-                    fluidRenderer.renderFluid(canvas, Rect2i.createFromMinAndSize(minX, minY, maxX, Math.round(yPerc * size.y) - minY));
+                    fluidMinY = minY;
+                    fluidMaxY = y - minY;
                 } else {
-                    float yPerc = 1f * (minY - result * (minY - maxY)) / texture.getHeight();
-                    int y = Math.round(yPerc * size.y);
-                    fluidRenderer.renderFluid(canvas, Rect2i.createFromMinAndSize(minX, y, maxX, minY - y));
+                    fluidMinY = y;
+                    fluidMaxY = minY - y;
                 }
+
+                Texture fluidTexture = Assets.getTexture(FluidContainerAssetResolver.getFluidBaseUri(fluidType)).get();
+                canvas.drawTextureRaw(fluidTexture, Rect2i.createFromMinAndSize(minX, fluidMinY, maxX, fluidMaxY), ScaleMode.TILED);
             }
 
             canvas.drawTexture(texture, canvas.getRegion());
 
             setTooltipDelay(0);
-            String fluidDisplay = fluidType == null ? "Fluid" : fluidRenderer.getFluidName();
+            String fluidDisplay = fluidType == null ? "Fluid" : fluidRegistry.getDisplayName(fluidType);
             setTooltip(String.format(fluidDisplay + ": %.0f/%.0f", currentVolume, maxVolume));
 
         }
