@@ -51,11 +51,32 @@ public interface FluidRegistry {
      */
     BufferedImage getFluidTexture(String fluidType);
 
+    /**
+     * Accessor function which returns name to use in the UI for a given fluid type.
+     *
+     * @param fluidType The fluid type
+     * @return The display name associated with the fluid type
+     */
     String getDisplayName(String fluidType);
 
+    /**
+     * Accessor function which returns the liquid block associated with a given fluid type.
+     *
+     * @param fluidType The fluid type
+     * @return The liquid block associated with the fluid type
+     */
     Block getCorrespondingLiquid(String fluidType);
 
+    /**
+     * Accessor function which returns the fluid type associated with a given liquid block.
+     *
+     * @param liquid The type of liquid block
+     * @return The fluid type associated with the liquid block
+     */
     String getCorrespondingFluid(Block liquid);
 
+    /**
+     * Finds the prefab which should be used for properties of the given fluid, whether or not it has an associated liquid.
+     */
     Prefab getPrefab(String fluidType);
 }

@@ -119,6 +119,9 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
         return liquidFluidMap.get(liquid);
     }
 
+    /**
+     * Finds the prefab which should be used for properties of the given fluid, whether or not it has an associated liquid.
+     */
     @Override
     public Prefab getPrefab(String fluidType) {
         if (fluidType == null) {
