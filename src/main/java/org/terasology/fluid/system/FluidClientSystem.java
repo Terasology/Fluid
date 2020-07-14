@@ -16,6 +16,7 @@
 package org.terasology.fluid.system;
 
 import org.terasology.assets.Asset;
+import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -26,10 +27,17 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.logic.inventory.ItemComponent;
+import org.terasology.math.geom.Rect2i;
+import org.terasology.math.geom.Vector2i;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.texture.Texture;
+import org.terasology.rendering.assets.texture.TextureUtil;
+import org.terasology.rendering.nui.Canvas;
+import org.terasology.rendering.nui.Color;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
 import org.terasology.rendering.nui.widgets.TooltipLine;
+import org.terasology.utilities.Assets;
 
 import java.util.Optional;
 
@@ -53,8 +61,8 @@ public class FluidClientSystem extends BaseComponentSystem {
     public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         // Add tooltip with current fluid amounts.
         if (fluidContainerItem.fluidType != null) {
-            event.getTooltipLines().add(new TooltipLine("This holds " + (int) (fluidContainerItem.volume * 1000) + "/" +
-                    (int) (fluidContainerItem.maxVolume * 1000) + " ml of " + fluidContainerItem.fluidType + "."));
+            event.getTooltipLines().add(new TooltipLine("This holds " + (int) (fluidContainerItem.volume) + "/" +
+                    (int) (fluidContainerItem.maxVolume) + " ml of " + fluidContainerItem.fluidType + "."));
         } else {
             event.getTooltipLines().add(new TooltipLine("This holds no fluid."));
         }
@@ -121,5 +129,49 @@ public class FluidClientSystem extends BaseComponentSystem {
                 container.saveComponent(itemComp);
             }
         }
+    }
+
+    /**
+     * Used to draw the Filling bar over the fluid container item in the cell.
+     *
+     * @param event  An event sent after the inventory cell has been rendered.
+     * @param entity The entity sending the request.
+     * @param fluidContainer FluidContainerItemComponent of the item.
+     */
+    @ReceiveEvent
+    public void drawFillingBarForFluidContainerItem(InventoryCellRendered event, EntityRef entity,
+                               FluidContainerItemComponent fluidContainer) {
+        Canvas canvas = event.getCanvas();
+
+        Vector2i size = canvas.size();
+
+        int minX = (int) (size.x * 0.1f);
+        int maxX = (int) (size.x * 0.9f);
+
+        int minY = (int) (size.y * 0.8f);
+        int maxY = (int) (size.y * 0.9f);
+
+        float fillingPercentage = 1f * fluidContainer.volume / fluidContainer.maxVolume;
+
+        if (fillingPercentage != 1f) {
+            ResourceUrn backgroundTexture = TextureUtil.getTextureUriForColor(Color.WHITE);
+
+            final Color terasologyColor = getTerasologyColorForFilledAmount(fillingPercentage);
+
+            ResourceUrn barTexture = TextureUtil.getTextureUriForColor(terasologyColor);
+
+            canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), Rect2i.createFromMinAndMax(minX,
+                    minY, maxX, maxY));
+            int fillingBarLength = (int) (fillingPercentage * (maxX - minX - 1));
+            int fillingBarHeight = maxY - minY - 1;
+            canvas.drawTexture(Assets.get(barTexture, Texture.class).get(), Rect2i.createFromMinAndSize(minX + 1,
+                    minY + 1, fillingBarLength, fillingBarHeight));
+        }
+    }
+
+    private Color getTerasologyColorForFilledAmount(float fillingPercentage) {
+        final java.awt.Color awtColor = java.awt.Color.getHSBColor(0.33f * fillingPercentage, 1f, 0.8f);
+
+        return new Color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 }
