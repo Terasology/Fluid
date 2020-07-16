@@ -140,38 +140,35 @@ public class FluidClientSystem extends BaseComponentSystem {
      */
     @ReceiveEvent
     public void drawFillingBarForFluidContainerItem(InventoryCellRendered event, EntityRef entity,
-                               FluidContainerItemComponent fluidContainer) {
+                                                    FluidContainerItemComponent fluidContainer) {
         Canvas canvas = event.getCanvas();
 
         Vector2i size = canvas.size();
 
-        int minX = (int) (size.x * 0.1f);
+        int minX = (int) (size.x * 0.8f);
         int maxX = (int) (size.x * 0.9f);
 
-        int minY = (int) (size.y * 0.8f);
+        int minY = (int) (size.y * 0.1f);
         int maxY = (int) (size.y * 0.9f);
 
         float fillingPercentage = 1f * fluidContainer.volume / fluidContainer.maxVolume;
 
         if (fillingPercentage != 1f) {
             ResourceUrn backgroundTexture = TextureUtil.getTextureUriForColor(Color.WHITE);
-
             final Color terasologyColor = getTerasologyColorForFilledAmount(fillingPercentage);
-
             ResourceUrn barTexture = TextureUtil.getTextureUriForColor(terasologyColor);
 
             canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), Rect2i.createFromMinAndMax(minX,
                     minY, maxX, maxY));
-            int fillingBarLength = (int) (fillingPercentage * (maxX - minX - 1));
-            int fillingBarHeight = maxY - minY - 1;
+            int fillingBarHeight = (int) (fillingPercentage * (maxY - minY - 1));
+            int fillingBarLength = maxX - minX - 1;
             canvas.drawTexture(Assets.get(barTexture, Texture.class).get(), Rect2i.createFromMinAndSize(minX + 1,
-                    minY + 1, fillingBarLength, fillingBarHeight));
+                    maxY - fillingBarHeight - 1, fillingBarLength, fillingBarHeight ));
         }
     }
 
     private Color getTerasologyColorForFilledAmount(float fillingPercentage) {
         final java.awt.Color awtColor = java.awt.Color.getHSBColor(0.33f * fillingPercentage, 1f, 0.8f);
-
         return new Color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 }
