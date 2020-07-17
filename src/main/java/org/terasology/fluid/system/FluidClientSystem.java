@@ -151,12 +151,11 @@ public class FluidClientSystem extends BaseComponentSystem {
         int minY = (int) (size.y * 0.1f);
         int maxY = (int) (size.y * 0.9f);
 
-        float fillingPercentage = 1f * fluidContainer.volume / fluidContainer.maxVolume;
+        float fillingPercentage = fluidContainer.volume / fluidContainer.maxVolume;
 
-        if (fillingPercentage != 1f) {
+        if (fillingPercentage > 0f && fillingPercentage < 1f) {
             ResourceUrn backgroundTexture = TextureUtil.getTextureUriForColor(Color.WHITE);
-            final Color terasologyColor = getTerasologyColorForFilledAmount(fillingPercentage);
-            ResourceUrn barTexture = TextureUtil.getTextureUriForColor(terasologyColor);
+            ResourceUrn barTexture = TextureUtil.getTextureUriForColor(Color.BLUE);
 
             canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), Rect2i.createFromMinAndMax(minX,
                     minY, maxX, maxY));
@@ -165,10 +164,5 @@ public class FluidClientSystem extends BaseComponentSystem {
             canvas.drawTexture(Assets.get(barTexture, Texture.class).get(), Rect2i.createFromMinAndSize(minX + 1,
                     maxY - fillingBarHeight - 1, fillingBarLength, fillingBarHeight ));
         }
-    }
-
-    private Color getTerasologyColorForFilledAmount(float fillingPercentage) {
-        final java.awt.Color awtColor = java.awt.Color.getHSBColor(0.33f * fillingPercentage, 1f, 0.8f);
-        return new Color(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
     }
 }
