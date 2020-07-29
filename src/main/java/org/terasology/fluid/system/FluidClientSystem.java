@@ -49,6 +49,7 @@ public class FluidClientSystem extends BaseComponentSystem {
 
     @In
     private FluidRegistry fluidRegistry;
+
     @In
     private AssetManager assetManager;
 

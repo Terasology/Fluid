@@ -51,6 +51,12 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
 
     private static final Logger logger = LoggerFactory.getLogger(FluidAuthoritySystem.class);
 
+    /**
+     * If one block is 1m across, the fluid units are litres. This works reasonably
+     * sensibly with the pre-existing container sizes in ManualLabor.
+     */
+    private static final float FLUID_PER_BLOCK = 1000;
+
     @In
     private WorldProvider worldProvider;
     @In
@@ -64,16 +70,11 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     
     @In
     private ExtraBlockDataManager extraDataManager;
-    private int flowIx;
+    private int flowIndex;
     @In
     private ComponentSystemManager componentSystemManager;
     private boolean flowingLiquidsEnabled;
-    
-    /**
-     * If one block is 1m across, the fluid units are litres. This works reasonably
-     * sensibly with the pre-existing container sizes in ManualLabor.
-     */
-    private static final float FLUID_PER_BLOCK = 1000;
+
     private Random rand;
     
     @Override
@@ -81,7 +82,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         air = blockManager.getBlock(BlockManager.AIR_ID);
         flowingLiquidsEnabled = componentSystemManager.get("FlowingLiquids:LiquidFlowSystem") != null;
         if (flowingLiquidsEnabled) {
-            flowIx = extraDataManager.getSlotNumber(LiquidData.EXTRA_DATA_NAME);
+            flowIndex = extraDataManager.getSlotNumber(LiquidData.EXTRA_DATA_NAME);
         }
         rand = new Random();
     }
@@ -94,8 +95,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * If the returned option is non-empty, the block is guaranteed to be a liquid block.
      *
      * @param start		the starting location
-     * @param direction	the direction to search for a liquid block
-     * @param distance	the reachable distance in number of blocks
+     * @param direction the direction to search for a liquid block
+     * @param distance  the reachable distance in number of blocks
      *
      * @return option of the liquid block found in reach, empty if none was found
      */
@@ -130,55 +131,64 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
             getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(pos -> {
-                EntityRef owner = item.getOwner();
-                final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
                 String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
-                if (removedItem != null && fluidType != null) {
-                    float blockAmount = getLiquidInBlock(pos);
-                    
-                    FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
-                    float totalAmount = blockAmount + fluidComponent.volume;
-                    if (totalAmount > fluidComponent.maxVolume) {
-                        blockAmount = totalAmount - fluidComponent.maxVolume;
-                        totalAmount = fluidComponent.maxVolume;
-                    } else {
-                        blockAmount = 0;
-                    }
-                    // Set the contents of this fluid container and fill it up to max capacity.
-                    FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
+                if (fluidType != null && (fluidContainer.fluidType == null || fluidContainer.fluidType == fluidType)) {
+                    EntityRef owner = item.getOwner();
+                    final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+                    if (removedItem != null) {
+                        float blockAmount = getLiquidInBlock(pos);
 
-                    if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
-                        removedItem.destroy();
+                        FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+                        float totalAmount = blockAmount + fluidComponent.volume;
+                        if (totalAmount > fluidComponent.maxVolume) {
+                            blockAmount = totalAmount - fluidComponent.maxVolume;
+                            totalAmount = fluidComponent.maxVolume;
+                        } else {
+                            blockAmount = 0;
+                        }
+                        // Set the contents of this fluid container and fill it up to max capacity.
+                        FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
+
+                        if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                            removedItem.destroy();
+                        }
+
+                        // This will be less than the original liquid height, unless the container somehow started off overfull.
+                        setLiquidInBlock(pos, blockAmount);
                     }
-                    
-                    // This will be less than the original liquid height, unless the container somehow started off overfull.
-                    setLiquidInBlock(pos, blockAmount);
+                    event.consume();
                 }
-                event.consume();
             });
         }
     }
-    
+
+    /**
+     * Assuming this block contains a liquid, return the volume of the fluid it contains.
+     */
     private float getLiquidInBlock(Vector3i pos) {
         if (flowingLiquidsEnabled) {
-            byte liquidData = (byte) worldProvider.getExtraData(flowIx, pos);
+            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, pos);
             return LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
         } else {
             return FLUID_PER_BLOCK;
         }
     }
-    
-    // Assumes that the block is already a liquid, so the block ID doesn't need to be set unless the liquid is entirely removed.
+
+    /**
+     * Assumes that the block is already a liquid, so the block ID doesn't need to be set unless the liquid is entirely removed.
+     * @param pos         The position of the block
+     * @param fluidAmount The volume of fluid the block should contain, between 0 and FLUID_PER_BLOCK
+     */
     private void setLiquidInBlock(Vector3i pos, float fluidAmount) {
         float blockAmount = fluidAmount / FLUID_PER_BLOCK;
         if (flowingLiquidsEnabled) {
             blockAmount *= LiquidData.MAX_HEIGHT;
         }
         int liquidLevel = randomRound(blockAmount);
-        if(liquidLevel == 0) {
+        if (liquidLevel == 0) {
             worldProvider.setBlock(pos, air);
         } else if (flowingLiquidsEnabled) {
-            worldProvider.setExtraData(flowIx, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
+            worldProvider.setExtraData(flowIndex, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
     

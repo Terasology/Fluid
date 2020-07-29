@@ -21,16 +21,12 @@ import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.In;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.assets.texture.TextureUtil;
-import org.terasology.rendering.nui.Color;
 import org.terasology.utilities.Assets;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.BlockPart;
 import org.terasology.world.block.BlockUri;
 import org.terasology.world.block.loader.BlockFamilyDefinition;
-import org.terasology.world.block.loader.BlockFamilyDefinitionData;
 import org.terasology.world.block.loader.SectionDefinitionData;
 
 import java.awt.image.BufferedImage;
@@ -57,14 +53,14 @@ public class FluidCommonSystem extends BaseComponentSystem {
     public void preBegin() {
         for (ResourceUrn blockUrn : Assets.list(BlockFamilyDefinition.class)) {
             Optional<BlockFamilyDefinition> maybeDefinition = Assets.get(blockUrn, BlockFamilyDefinition.class);
-            if (maybeDefinition.isPresent()) {
-                SectionDefinitionData blockData = maybeDefinition.get().getData().getBaseSection();
+            maybeDefinition.ifPresent(definition -> {
+                SectionDefinitionData blockData = definition.getData().getBaseSection();
                 if (blockData.isLiquid()) {
                     BufferedImage texture = blockData.getBlockTiles().get(BlockPart.FRONT).getImage();
                     Block block = blockManager.getBlock(new BlockUri(blockUrn));
                     fluidRegistry.registerFluid(blockUrn.toString(), block.getDisplayName(), texture, block);
                 }
-            }
+            });
         }
     }
 }

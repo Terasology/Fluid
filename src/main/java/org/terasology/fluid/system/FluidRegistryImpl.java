@@ -19,6 +19,7 @@ import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.prefab.PrefabManager;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.naming.Name;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
@@ -36,25 +37,26 @@ import java.util.Map;
 @RegisterSystem
 @Share(FluidRegistry.class)
 public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegistry {
-    private Map<String, BufferedImage> fluidTextures = new HashMap<>();
-    private Map<String, String> displayNames = new HashMap<>();
-    private Map<String, Block> fluidLiquidMap = new HashMap<>();
-    private Map<Block, String> liquidFluidMap = new HashMap<>();
+    private Map<Name, BufferedImage> fluidTextures = new HashMap<>();
+    private Map<Name, String> displayNames = new HashMap<>();
+    private Map<Name, Block> fluidLiquidMap = new HashMap<>();
+    private Map<Block, Name> liquidFluidMap = new HashMap<>();
 
     /**
      * Registers a fluid with a fluid renderer.
      *
-     * @param fluidType     The type of fluid
-     * @param displayName   The name used for the fluid in the UI
-     * @param fluidTexture  The image to use when rendering the fluid
-     * @param block         The corresponding liquid block, or null if this fluid can't be placed in the world.
+     * @param fluidTypeString The type of fluid
+     * @param displayName     The name used for the fluid in the UI
+     * @param fluidTexture    The image to use when rendering the fluid
+     * @param block           The corresponding liquid block, or null if this fluid can't be placed in the world.
      */
     @Override
-    public void registerFluid(String fluidType, String displayName, BufferedImage fluidTexture, Block block) {
-        fluidTextures.put(fluidType.toLowerCase(), fluidTexture);
-        displayNames.put(fluidType.toLowerCase(), displayName);
+    public void registerFluid(String fluidTypeString, String displayName, BufferedImage fluidTexture, Block block) {
+        Name fluidType = new Name(fluidTypeString);
+        fluidTextures.put(fluidType, fluidTexture);
+        displayNames.put(fluidType, displayName);
         if (block != null) {
-            fluidLiquidMap.put(fluidType.toLowerCase(), block);
+            fluidLiquidMap.put(fluidType, block);
             liquidFluidMap.put(block, fluidType);
         }
     }
@@ -83,7 +85,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
      */
     @Override
     public BufferedImage getFluidTexture(String fluidType) {
-        return fluidTextures.get(fluidType.toLowerCase());
+        return fluidTextures.get(new Name(fluidType));
     }
 
     /**
@@ -94,7 +96,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
      */
     @Override
     public String getDisplayName(String fluidType) {
-        return displayNames.get(fluidType.toLowerCase());
+        return displayNames.get(new Name(fluidType));
     }
 
     /**
@@ -105,7 +107,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
      */
     @Override
     public Block getCorrespondingLiquid(String fluidType) {
-        return fluidLiquidMap.get(fluidType.toLowerCase());
+        return fluidLiquidMap.get(new Name(fluidType));
     }
 
     /**
@@ -116,7 +118,7 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
      */
     @Override
     public String getCorrespondingFluid(Block liquid) {
-        return liquidFluidMap.get(liquid);
+        return liquidFluidMap.get(liquid).toString();
     }
 
     /**
