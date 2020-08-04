@@ -39,7 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * This class contains methods for handling and resolving assets.
+ * Generates TextureData for the asset system by combining fluid textures with fluid container item textures, or just by tiling fluid textures to a specified size.
  */
 @RegisterAssetDataProducer
 public class FluidContainerAssetResolver implements AssetDataProducer<TextureData> {
@@ -73,11 +73,27 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
                                               float sizePercX, float sizePercY) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Fluid:Fluid(");
+        sb.append("Fluid:FluidItem(");
         sb.append(textureUri);
         sb.append(",").append(fluidType);
         sb.append(",").append(minPercX).append(",").append(minPercY);
         sb.append(",").append(sizePercX).append(",").append(sizePercY);
+        sb.append(")");
+
+        return sb.toString();
+    }
+
+    /**
+     * Generates a URI for a texture with specific fluid type and the default size.
+     *
+     * @param fluidType  The type of the fluid whose texture's URI is to be generated
+     * @return           The URI to the required texture
+     */
+    public static String getFluidBaseUri(String fluidType) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Fluid:FluidBase(");
+        sb.append(fluidType);
         sb.append(")");
 
         return sb.toString();
@@ -130,9 +146,10 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
     public Optional<TextureData> getAssetData(ResourceUrn urn) throws IOException {
         final String assetName = urn.getResourceName().toString().toLowerCase();
         if (!FLUID_MODULE.equals(urn.getModuleName())
-                || !assetName.startsWith("fluid(")) {
+                || !(assetName.startsWith("fluiditem(") || assetName.startsWith("fluidbase("))) {
             return Optional.empty();
         }
+        boolean isItem = assetName.startsWith("fluiditem");
         String[] split = assetName.split("\\(");
 
         // Get the parameters from the URN.
@@ -159,56 +176,62 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         }
 
         // If the number of parameters is less than 6, return with empty.
-        if (parameters.length != 6) {
+        if (parameters.length != (isItem ? 6 : 1)) {
             logger.warn("Unexpected number of tokens when trying to getAssetData for a fluid container's content: {}", parameters);
             return Optional.empty();
         }
 
         // Remove the extraneous right parenthesis from the end of the last parameter.
-        parameters[5] = parameters[5].substring(0, parameters[5].length() - 1);
+        parameters[parameters.length-1] = parameters[parameters.length-1].substring(0, parameters[parameters.length-1].length() - 1);
 
-        String textureWithHole = parameters[0];
-        String fluidType = parameters[1];
+        BufferedImage result;
+        if (isItem) {
+            String textureWithHole = parameters[0];
+            String fluidType = parameters[1];
 
-        FluidRenderer fluidRenderer = CoreRegistry.get(FluidRegistry.class).getFluidRenderer(fluidType);
-        BufferedImage fluidTexture = TextureUtil.convertToImage(fluidRenderer.getTexture());
+            BufferedImage fluidTexture = CoreRegistry.get(FluidRegistry.class).getFluidTexture(fluidType);
 
-        Optional<TextureRegionAsset> textureWithHoleRegion = assetManager.getAsset(textureWithHole,
-                TextureRegionAsset.class);
-        BufferedImage containerTexture = TextureUtil.convertToImage(textureWithHoleRegion.get());
-        int width = containerTexture.getWidth();
-        int height = containerTexture.getHeight();
+            Optional<TextureRegionAsset> textureWithHoleRegion = assetManager.getAsset(textureWithHole,
+                    TextureRegionAsset.class);
+            BufferedImage containerTexture = TextureUtil.convertToImage(textureWithHoleRegion.get());
+            int width = containerTexture.getWidth();
+            int height = containerTexture.getHeight();
 
-        int fluidWidth = fluidTexture.getWidth();
-        int fluidHeight = fluidTexture.getHeight();
+            int fluidWidth = fluidTexture.getWidth();
+            int fluidHeight = fluidTexture.getHeight();
 
-        Vector2i min = new Vector2i(
-                Math.round(Float.parseFloat(parameters[2]) * width),
-                Math.round(Float.parseFloat(parameters[3]) * height));
-        Vector2i size = new Vector2i(
-                Math.round(Float.parseFloat(parameters[4]) * width),
-                Math.round(Float.parseFloat(parameters[5]) * height));
+            Vector2i min = new Vector2i(
+                    Math.round(Float.parseFloat(parameters[2]) * width),
+                    Math.round(Float.parseFloat(parameters[3]) * height));
+            Vector2i size = new Vector2i(
+                    Math.round(Float.parseFloat(parameters[4]) * width),
+                    Math.round(Float.parseFloat(parameters[5]) * height));
 
-        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = (Graphics2D) result.getGraphics();
-        try {
-            // Draw fluid texture tiled in the designated space
-            for (int x = min.x; x < min.x + size.x; x += fluidWidth) {
-                for (int y = min.y; y < min.y + size.y; y += fluidHeight) {
-                    int fluidTileWidth = Math.min(fluidWidth, size.x + min.x - x);
-                    int fluidTileHeight = Math.min(fluidHeight, size.y + min.y - y);
-                    graphics.drawImage(fluidTexture, x, y, x + fluidTileWidth, y + fluidTileHeight, 0, 0, fluidTileWidth, fluidTileHeight, null);
+            result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics = (Graphics2D) result.getGraphics();
+            try {
+                // Draw fluid texture tiled in the designated space
+                for (int x = min.x; x < min.x + size.x; x += fluidWidth) {
+                    for (int y = min.y; y < min.y + size.y; y += fluidHeight) {
+                        int fluidTileWidth = Math.min(fluidWidth, size.x + min.x - x);
+                        int fluidTileHeight = Math.min(fluidHeight, size.y + min.y - y);
+                        graphics.drawImage(fluidTexture, x, y, x + fluidTileWidth, y + fluidTileHeight, 0, 0, fluidTileWidth, fluidTileHeight, null);
+                    }
                 }
+                // Draw the container texture on top of the fluid
+                graphics.drawImage(containerTexture, 0, 0, null);
+            } finally {
+                graphics.dispose();
             }
-            // Draw the container texture on top of the fluid
-            graphics.drawImage(containerTexture, 0, 0, null);
-        } finally {
-            graphics.dispose();
+        } else {
+            String fluidType = parameters[0];
+
+            result = CoreRegistry.get(FluidRegistry.class).getFluidTexture(fluidType);
         }
 
         final ByteBuffer resultBuffer = TextureUtil.convertToByteBuffer(result);
 
-        TextureData data = new TextureData(width, height, new ByteBuffer[]{resultBuffer}, Texture.WrapMode.REPEAT,
+        TextureData data = new TextureData(result.getWidth(), result.getHeight(), new ByteBuffer[]{resultBuffer}, Texture.WrapMode.REPEAT,
                 Texture.FilterMode.NEAREST);
         return Optional.of(data);
 
