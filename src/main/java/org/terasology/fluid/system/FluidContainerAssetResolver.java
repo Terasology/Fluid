@@ -149,6 +149,13 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
                 || !(assetName.startsWith("fluiditem(") || assetName.startsWith("fluidbase("))) {
             return Optional.empty();
         }
+
+        FluidRegistry fluidRegistry = CoreRegistry.get(FluidRegistry.class);
+        if (fluidRegistry == null) {
+            // Sometimes in multiplayer it loads things involving assets from the server before the systems are initialized.
+            return Optional.empty();
+        }
+
         boolean isItem = assetName.startsWith("fluiditem");
         String[] split = assetName.split("\\(");
 
@@ -189,7 +196,10 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
             String textureWithHole = parameters[0];
             String fluidType = parameters[1];
 
-            BufferedImage fluidTexture = CoreRegistry.get(FluidRegistry.class).getFluidTexture(fluidType);
+            BufferedImage fluidTexture = fluidRegistry.getFluidTexture(fluidType);
+            if (fluidTexture == null) {
+                return Optional.empty();
+            }
 
             Optional<TextureRegionAsset> textureWithHoleRegion = assetManager.getAsset(textureWithHole,
                     TextureRegionAsset.class);
@@ -226,7 +236,10 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         } else {
             String fluidType = parameters[0];
 
-            result = CoreRegistry.get(FluidRegistry.class).getFluidTexture(fluidType);
+            result = fluidRegistry.getFluidTexture(fluidType);
+            if (result == null) {
+                return Optional.empty();
+            }
         }
 
         final ByteBuffer resultBuffer = TextureUtil.convertToByteBuffer(result);
