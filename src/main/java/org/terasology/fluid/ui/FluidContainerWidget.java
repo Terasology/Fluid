@@ -1,39 +1,26 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.ui;
 
 import org.terasology.fluid.system.FluidContainerAssetResolver;
+import org.terasology.math.JomlUtil;
 import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.nui.ScaleMode;
+import org.terasology.nui.ScaleMode;
 import org.terasology.utilities.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidRegistry;
-import org.terasology.math.geom.Rect2i;
-import org.terasology.math.geom.Vector2i;
+import org.joml.Vector2i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.TextureRegion;
-import org.terasology.rendering.nui.BaseInteractionListener;
-import org.terasology.rendering.nui.Canvas;
-import org.terasology.rendering.nui.CoreWidget;
-import org.terasology.rendering.nui.InteractionListener;
-import org.terasology.rendering.nui.LayoutConfig;
-import org.terasology.rendering.nui.databinding.Binding;
-import org.terasology.rendering.nui.databinding.DefaultBinding;
+import org.terasology.nui.BaseInteractionListener;
+import org.terasology.nui.Canvas;
+import org.terasology.nui.CoreWidget;
+import org.terasology.nui.InteractionListener;
+import org.terasology.nui.LayoutConfig;
+import org.terasology.nui.databinding.Binding;
+import org.terasology.nui.databinding.DefaultBinding;
 
 /**
  * The UI widget for fluid containers.
@@ -123,7 +110,7 @@ public class FluidContainerWidget extends CoreWidget {
                 }
 
                 Texture fluidTexture = Assets.getTexture(FluidContainerAssetResolver.getFluidBaseUri(fluidType)).get();
-                canvas.drawTextureRaw(fluidTexture, Rect2i.createFromMinAndSize(minX, fluidMinY, maxX, fluidMaxY), ScaleMode.TILED);
+                canvas.drawTextureRaw(fluidTexture, JomlUtil.rectangleiFromMinAndSize(minX, fluidMinY, maxX, fluidMaxY), ScaleMode.TILED);
             }
 
             canvas.drawTexture(texture, canvas.getRegion());
@@ -167,7 +154,7 @@ public class FluidContainerWidget extends CoreWidget {
         if (image.get() != null) {
             return image.get().size();
         }
-        return Vector2i.zero();
+        return new Vector2i();
     }
 
     /**
