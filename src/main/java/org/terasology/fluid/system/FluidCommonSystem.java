@@ -16,10 +16,10 @@
 package org.terasology.fluid.system;
 
 
-import org.terasology.assets.ResourceUrn;
-import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.registry.In;
 import org.terasology.utilities.Assets;
 import org.terasology.world.block.Block;
