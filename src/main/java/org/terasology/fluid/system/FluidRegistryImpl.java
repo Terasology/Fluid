@@ -1,28 +1,15 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.entitySystem.prefab.PrefabManager;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.prefab.Prefab;
+import org.terasology.engine.entitySystem.prefab.PrefabManager;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.world.block.Block;
 import org.terasology.gestalt.naming.Name;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.Share;
-import org.terasology.world.block.Block;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -36,18 +23,18 @@ import java.util.Map;
 @RegisterSystem
 @Share(FluidRegistry.class)
 public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegistry {
-    private Map<Name, BufferedImage> fluidTextures = new HashMap<>();
-    private Map<Name, String> displayNames = new HashMap<>();
-    private Map<Name, Block> fluidLiquidMap = new HashMap<>();
-    private Map<Block, Name> liquidFluidMap = new HashMap<>();
+    private final Map<Name, BufferedImage> fluidTextures = new HashMap<>();
+    private final Map<Name, String> displayNames = new HashMap<>();
+    private final Map<Name, Block> fluidLiquidMap = new HashMap<>();
+    private final Map<Block, Name> liquidFluidMap = new HashMap<>();
 
     /**
      * Registers a fluid with a fluid renderer.
      *
      * @param fluidTypeString The type of fluid
-     * @param displayName     The name used for the fluid in the UI
-     * @param fluidTexture    The image to use when rendering the fluid
-     * @param block           The corresponding liquid block, or null if this fluid can't be placed in the world.
+     * @param displayName The name used for the fluid in the UI
+     * @param fluidTexture The image to use when rendering the fluid
+     * @param block The corresponding liquid block, or null if this fluid can't be placed in the world.
      */
     @Override
     public void registerFluid(String fluidTypeString, String displayName, BufferedImage fluidTexture, Block block) {
@@ -63,16 +50,16 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     /**
      * Registers the fluid with no corresponding liquid block and a solid colour.
      *
-     * @param fluidType   The type of fluid
+     * @param fluidType The type of fluid
      * @param displayName The name used for the fluid in the UI
-     * @param color       The colour to use when rendering the fluid
+     * @param color The colour to use when rendering the fluid
      */
     @Override
     public void registerFluid(String fluidType, String displayName, Color color) {
         BufferedImage texture = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = texture.createGraphics();
         graphics.setColor(color);
-        graphics.fillRect(0,0,16,16);
+        graphics.fillRect(0, 0, 16, 16);
         registerFluid(fluidType, displayName, texture, null);
     }
 
@@ -121,7 +108,8 @@ public class FluidRegistryImpl extends BaseComponentSystem implements FluidRegis
     }
 
     /**
-     * Finds the prefab which should be used for properties of the given fluid, whether or not it has an associated liquid.
+     * Finds the prefab which should be used for properties of the given fluid, whether or not it has an associated
+     * liquid.
      */
     @Override
     public Prefab getPrefab(String fluidType) {

@@ -3,28 +3,28 @@
 package org.terasology.fluid.system;
 
 import org.joml.Vector2i;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.logic.inventory.ItemComponent;
+import org.terasology.engine.math.JomlUtil;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.rendering.assets.texture.Texture;
+import org.terasology.engine.rendering.assets.texture.TextureUtil;
+import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.gestalt.assets.Asset;
 import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.gestalt.assets.management.AssetManager;
-import org.terasology.logic.inventory.ItemComponent;
-import org.terasology.math.JomlUtil;
+import org.terasology.inventory.rendering.nui.layers.ingame.GetItemTooltip;
+import org.terasology.inventory.rendering.nui.layers.ingame.InventoryCellRendered;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.Color;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.registry.In;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.assets.texture.TextureUtil;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
-import org.terasology.utilities.Assets;
 
 import java.util.Optional;
 
@@ -43,12 +43,13 @@ public class FluidClientSystem extends BaseComponentSystem {
     /**
      * Sets the tooltip of a fluid container.
      *
-     * @param event                 Event that contains the tooltip lines.
-     * @param container             Reference to the entity that acts a fluid container.
-     * @param fluidContainerItem    The fluid container item component of the entity.
+     * @param event Event that contains the tooltip lines.
+     * @param container Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem The fluid container item component of the entity.
      */
     @ReceiveEvent
-    public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+    public void setItemTooltip(GetItemTooltip event, EntityRef container,
+                               FluidContainerItemComponent fluidContainerItem) {
         // Add tooltip with current fluid amounts.
         if (fluidContainerItem.fluidType != null) {
             event.getTooltipLines().add(new TooltipLine("This holds " + (int) fluidContainerItem.volume + "/" +
@@ -61,32 +62,34 @@ public class FluidClientSystem extends BaseComponentSystem {
     /**
      * When the contents of this fluid container have been activated.
      *
-     * @param event                 Event that indicates the activation.
-     * @param container             Reference to the entity that acts a fluid container.
-     * @param fluidContainerItem    The fluid container item component of the entity.
+     * @param event Event that indicates the activation.
+     * @param container Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem The fluid container item component of the entity.
      */
     @ReceiveEvent
-    public void onFluidContentsActivated(OnActivatedComponent event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+    public void onFluidContentsActivated(OnActivatedComponent event, EntityRef container,
+                                         FluidContainerItemComponent fluidContainerItem) {
         setFluidContainerIcon(container, fluidContainerItem);
     }
 
     /**
      * When the contents of this fluid container have been changed.
      *
-     * @param event                 Event that indicates the activation.
-     * @param container             Reference to the entity that acts a fluid container.
-     * @param fluidContainerItem    The fluid container item component of the entity.
+     * @param event Event that indicates the activation.
+     * @param container Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem The fluid container item component of the entity.
      */
     @ReceiveEvent
-    public void onFluidContentsChanged(OnChangedComponent event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+    public void onFluidContentsChanged(OnChangedComponent event, EntityRef container,
+                                       FluidContainerItemComponent fluidContainerItem) {
         setFluidContainerIcon(container, fluidContainerItem);
     }
 
     /**
      * Set the icon of this fluid container.
      *
-     * @param container             Reference to the entity that acts a fluid container.
-     * @param fluidContainerItem    The fluid container item component of the entity.
+     * @param container Reference to the entity that acts a fluid container.
+     * @param fluidContainerItem The fluid container item component of the entity.
      */
     private void setFluidContainerIcon(EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         // If this fluid container item has the both required textures (empty and filled), and percs.
@@ -124,7 +127,7 @@ public class FluidClientSystem extends BaseComponentSystem {
     /**
      * Used to draw the Filling bar over the fluid container item in the cell.
      *
-     * @param event  An event sent after the inventory cell has been rendered.
+     * @param event An event sent after the inventory cell has been rendered.
      * @param entity The entity sending the request.
      * @param fluidContainer FluidContainerItemComponent of the item.
      */
@@ -147,7 +150,8 @@ public class FluidClientSystem extends BaseComponentSystem {
             ResourceUrn backgroundTexture = TextureUtil.getTextureUriForColor(Color.WHITE);
             ResourceUrn barTexture = TextureUtil.getTextureUriForColor(Color.BLUE);
 
-            canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), JomlUtil.rectangleiFromMinAndSize(minX,
+            canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(),
+                    JomlUtil.rectangleiFromMinAndSize(minX,
                     minY, maxX, maxY));
             int fillingBarHeight = (int) (fillingPercentage * (maxY - minY - 1));
             int fillingBarLength = maxX - minX - 1;

@@ -1,34 +1,21 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.network.NetworkComponent;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.Share;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.event.BeforeFluidPutInInventory;
 import org.terasology.fluid.event.BeforeFluidRemovedFromInventory;
 import org.terasology.fluid.event.FluidVolumeChangedInInventory;
-import org.terasology.network.NetworkComponent;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.Share;
 
 import java.util.List;
 
@@ -41,11 +28,11 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Adds a fluid to all fluid inventory slots.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param container     The entity that houses the fluid inventory
-     * @param fluidType     The type of fluid being added
-     * @param volume        The volume of fluid being added
-     * @return              Whether the fluid was added successfully
+     * @param instigator The entity that's instigating this action
+     * @param container The entity that houses the fluid inventory
+     * @param fluidType The type of fluid being added
+     * @param volume The volume of fluid being added
+     * @return Whether the fluid was added successfully
      */
     @Override
     public boolean addFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
@@ -62,12 +49,14 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             if (fluid != null && fluid.fluidType.equals(fluidType)) {
                 float maximumVolume = maximumVolumes.get(i);
 
-                // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This will still
+                // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This 
+                // will still
                 // empty the item used to fill the inventory slot though.
                 if (fluid.volume <= maximumVolume) {
                     float oldVolume = fluid.volume;
 
-                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                    // maximum.
                     fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
 
                     float newVolume = fluid.volume;
@@ -98,7 +87,8 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                     FluidComponent fluidComponent = new FluidComponent();
                     fluidComponent.fluidType = fluidType;
 
-                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                    // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                    // maximum.
                     fluidComponent.volume = Math.min(maximumVolume, volume);
 
                     EntityRef newFluidEntity = entityManager.create(fluidComponent);
@@ -119,12 +109,12 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Add a certain volume of fluid to a particular fluid inventory slot.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param container     The entity that houses the fluid inventory
-     * @param slot          The slot number of the fluid inventory that's intended to be filled
-     * @param fluidType     The type of fluid being added
-     * @param volume        The volume of fluid being added
-     * @return              Whether the fluid was added successfully
+     * @param instigator The entity that's instigating this action
+     * @param container The entity that houses the fluid inventory
+     * @param slot The slot number of the fluid inventory that's intended to be filled
+     * @param fluidType The type of fluid being added
+     * @param volume The volume of fluid being added
+     * @return Whether the fluid was added successfully
      */
     @Override
     public boolean addFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
@@ -138,12 +128,14 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         if (fluid != null && fluid.fluidType.equals(fluidType)) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
 
-            // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This will still
+            // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. This will 
+            // still
             // empty the item used to fill the inventory though.
             if (fluid.volume <= maximumVolume) {
                 float oldVolume = fluid.volume;
 
-                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                // maximum.
                 fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
 
                 float newVolume = fluid.volume;
@@ -168,7 +160,8 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 FluidComponent fluidComponent = new FluidComponent();
                 fluidComponent.fluidType = fluidType;
 
-                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                // maximum.
                 fluidComponent.volume = Math.min(maximumVolume, volume);
 
                 EntityRef newFluidEntity = entityManager.create(fluidComponent);
@@ -188,16 +181,17 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Add fluid to a particular fluid inventory slot from a fluid holder.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param inventory     The entity that houses the fluid inventory
-     * @param holder        The entity that houses the fluid holder that the fluid's being transferred from
-     * @param slot          The slot number of the fluid inventory that's intended to be filled
-     * @param fluidType     The type of fluid being added
-     * @param volume        The volume of fluid being added
-     * @return              Whether the fluid was added successfully
+     * @param instigator The entity that's instigating this action
+     * @param inventory The entity that houses the fluid inventory
+     * @param holder The entity that houses the fluid holder that the fluid's being transferred from
+     * @param slot The slot number of the fluid inventory that's intended to be filled
+     * @param fluidType The type of fluid being added
+     * @param volume The volume of fluid being added
+     * @return Whether the fluid was added successfully
      */
     @Override
-    public boolean addFluidFromHolder(EntityRef instigator, EntityRef inventory, EntityRef holder, int slot, String fluidType, float volume) {
+    public boolean addFluidFromHolder(EntityRef instigator, EntityRef inventory, EntityRef holder, int slot,
+                                      String fluidType, float volume) {
         FluidInventoryComponent fluidInventory = inventory.getComponent(FluidInventoryComponent.class);
         FluidContainerItemComponent fluidHolder = holder.getComponent(FluidContainerItemComponent.class);
 
@@ -210,12 +204,14 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         if (fluid != null && fluid.fluidType.equals(fluidType)) {
             float maximumVolume = fluidInventory.maximumVolumes.get(slot);
 
-            // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. The fluid holder
+            // Refill the FluidComponent (fluid inventory) to max using just enough of the provided fluid. The fluid 
+            // holder
             // used will be emptied by the transferred amount accordingly.
             if (fluid.volume <= maximumVolume) {
                 float oldVolume = fluid.volume;
 
-                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                // maximum.
                 fluid.volume = Math.min(maximumVolume, fluid.volume + volume);
 
                 // Remove the fluid from the fluid holder. If it goes under 0, clamp the value to the minimum.
@@ -245,7 +241,8 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
                 FluidComponent fluidComponent = new FluidComponent();
                 fluidComponent.fluidType = fluidType;
 
-                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the maximum.
+                // Add the fluid into this fluid inventory slot. If it goes over the max, clamp the value to the 
+                // maximum.
                 fluidComponent.volume = Math.min(maximumVolume, volume);
 
                 // Remove the fluid from the fluid holder. If it goes under 0, clamp the value to the minimum.
@@ -269,11 +266,11 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from all fluid inventory slots.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param container     The entity that houses the fluid inventory
-     * @param fluidType     The type of fluid being removed
-     * @param volume        The volume of fluid being removed
-     * @return              Whether the fluid was removed successfully
+     * @param instigator The entity that's instigating this action
+     * @param container The entity that houses the fluid inventory
+     * @param fluidType The type of fluid being removed
+     * @param volume The volume of fluid being removed
+     * @return Whether the fluid was removed successfully
      */
     @Override
     public boolean removeFluid(EntityRef instigator, EntityRef container, String fluidType, float volume) {
@@ -295,12 +292,12 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from a particular fluid inventory slot.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param container     The entity that houses the fluid inventory
-     * @param slot          The slot number of the fluid inventory that's intended to be used
-     * @param fluidType     The type of fluid being removed
-     * @param volume        The volume of fluid being removed
-     * @return              Whether the fluid was removed successfully
+     * @param instigator The entity that's instigating this action
+     * @param container The entity that houses the fluid inventory
+     * @param slot The slot number of the fluid inventory that's intended to be used
+     * @param fluidType The type of fluid being removed
+     * @param volume The volume of fluid being removed
+     * @return Whether the fluid was removed successfully
      */
     @Override
     public boolean removeFluid(EntityRef instigator, EntityRef container, int slot, String fluidType, float volume) {
@@ -312,10 +309,12 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
         EntityRef fluidEntity = fluidInventory.fluidSlots.get(slot);
         FluidComponent fluid = fluidEntity.getComponent(FluidComponent.class);
         if (fluid != null && fluid.fluidType.equals(fluidType) && fluid.volume >= volume) {
-            BeforeFluidRemovedFromInventory beforePut = new BeforeFluidRemovedFromInventory(instigator, fluidType, volume, slot);
+            BeforeFluidRemovedFromInventory beforePut = new BeforeFluidRemovedFromInventory(instigator, fluidType,
+                    volume, slot);
             container.send(beforePut);
             if (!beforePut.isConsumed()) {
-                removeFluidFromContainer(instigator, container, fluidType, slot, volume, fluidInventory, fluidEntity, fluid);
+                removeFluidFromContainer(instigator, container, fluidType, slot, volume, fluidInventory, fluidEntity,
+                        fluid);
                 return true;
             }
         }
@@ -326,17 +325,19 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Remove a certain volume of fluid from a particular fluid container.
      *
-     * @param instigator     The instigator of this action
-     * @param container      The container from which the fluid is being removed
-     * @param fluidType      The type of fluid being removed
-     * @param slot           The inventory slot containing the container from which the fluid is being removed
-     * @param volume         The volume of fluid being removed
+     * @param instigator The instigator of this action
+     * @param container The container from which the fluid is being removed
+     * @param fluidType The type of fluid being removed
+     * @param slot The inventory slot containing the container from which the fluid is being removed
+     * @param volume The volume of fluid being removed
      * @param fluidInventory The fluid inventory containing the fluid being removed
-     * @param fluidEntity    An entity reference to the fluid being removed
-     * @param fluid          The fluid component of the fluid being removed
+     * @param fluidEntity An entity reference to the fluid being removed
+     * @param fluid The fluid component of the fluid being removed
      */
-    private void removeFluidFromContainer(EntityRef instigator, EntityRef container, String fluidType, int slot, float volume,
-                                          FluidInventoryComponent fluidInventory, EntityRef fluidEntity, FluidComponent fluid) {
+    private void removeFluidFromContainer(EntityRef instigator, EntityRef container, String fluidType, int slot,
+                                          float volume,
+                                          FluidInventoryComponent fluidInventory, EntityRef fluidEntity,
+                                          FluidComponent fluid) {
         float volumeBefore = fluid.volume;
         float volumeAfter;
         if (fluid.volume == volume) {
@@ -355,17 +356,18 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
     /**
      * Transfer fluid from one fluid inventory slot to another.
      *
-     * @param instigator    The entity that's instigating this action
-     * @param from          The entity that houses the source fluid inventory
-     * @param to            The entity that houses the destination fluid inventory
-     * @param slotFrom      The slot number of the source fluid inventory that's intended to be used
-     * @param fluidType     The type of fluid being transferred
-     * @param slotTo        The slot number of the destination fluid inventory that's intended to be used
-     * @param volume        The volume of fluid being transferred
-     * @return              The amount of fluid that was moved successfully
+     * @param instigator The entity that's instigating this action
+     * @param from The entity that houses the source fluid inventory
+     * @param to The entity that houses the destination fluid inventory
+     * @param slotFrom The slot number of the source fluid inventory that's intended to be used
+     * @param fluidType The type of fluid being transferred
+     * @param slotTo The slot number of the destination fluid inventory that's intended to be used
+     * @param volume The volume of fluid being transferred
+     * @return The amount of fluid that was moved successfully
      */
     @Override
-    public float moveFluid(EntityRef instigator, EntityRef from, EntityRef to, int slotFrom, String fluidType, int slotTo, float volume) {
+    public float moveFluid(EntityRef instigator, EntityRef from, EntityRef to, int slotFrom, String fluidType,
+                           int slotTo, float volume) {
         if (volume <= 0) {
             return 0;
         }
@@ -399,21 +401,24 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
             volumeToMove = Math.min(volume, maximumTargetVolume - fluidTo.volume);
         }
 
-        BeforeFluidRemovedFromInventory beforeRemoved = new BeforeFluidRemovedFromInventory(instigator, fluidType, volumeToMove, slotFrom);
+        BeforeFluidRemovedFromInventory beforeRemoved = new BeforeFluidRemovedFromInventory(instigator, fluidType,
+                volumeToMove, slotFrom);
         from.send(beforeRemoved);
         if (beforeRemoved.isConsumed()) {
             return 0;
         }
 
         if (fluidTo == null) {
-            BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volumeToMove, slotTo);
+            BeforeFluidPutInInventory beforePut = new BeforeFluidPutInInventory(instigator, fluidType, volumeToMove,
+                    slotTo);
             to.send(beforePut);
             if (beforePut.isConsumed()) {
                 return 0;
             }
         }
 
-        removeFluidFromContainer(instigator, from, fluidType, slotFrom, volumeToMove, fluidInventoryFrom, fluidEntityFrom, fluidFrom);
+        removeFluidFromContainer(instigator, from, fluidType, slotFrom, volumeToMove, fluidInventoryFrom,
+                fluidEntityFrom, fluidFrom);
 
         if (fluidTo == null) {
             EntityManager entityManager = CoreRegistry.get(EntityManager.class);

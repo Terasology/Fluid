@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.ui;
 
-import org.terasology.fluid.system.FluidContainerAssetResolver;
-import org.terasology.math.JomlUtil;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.nui.ScaleMode;
-import org.terasology.utilities.Assets;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.joml.Vector2i;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.math.JomlUtil;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.rendering.assets.texture.Texture;
+import org.terasology.engine.rendering.assets.texture.TextureRegion;
+import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.fluid.system.FluidRegistry;
-import org.joml.Vector2i;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.rendering.assets.texture.TextureRegion;
 import org.terasology.nui.BaseInteractionListener;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.CoreWidget;
 import org.terasology.nui.InteractionListener;
 import org.terasology.nui.LayoutConfig;
+import org.terasology.nui.ScaleMode;
 import org.terasology.nui.databinding.Binding;
 import org.terasology.nui.databinding.DefaultBinding;
 
@@ -26,12 +26,10 @@ import org.terasology.nui.databinding.DefaultBinding;
  * The UI widget for fluid containers.
  */
 public class FluidContainerWidget extends CoreWidget {
+    private final InteractionListener listener = new BaseInteractionListener();
     FluidRegistry fluidRegistry;
-
     @LayoutConfig
     private Binding<TextureRegion> image = new DefaultBinding<>(Assets.getTextureRegion("Fluid:FluidContainer").get());
-    private InteractionListener listener = new BaseInteractionListener();
-
     private int minX;
     private int maxX;
 
@@ -68,7 +66,8 @@ public class FluidContainerWidget extends CoreWidget {
 
     /**
      * Parametrized constructor with a specified ID and a specified image.
-     * @param id    The ID to assign to the fuid container
+     *
+     * @param id The ID to assign to the fuid container
      * @param image The image of the fluid container
      */
     public FluidContainerWidget(String id, TextureRegion image) {
@@ -110,7 +109,8 @@ public class FluidContainerWidget extends CoreWidget {
                 }
 
                 Texture fluidTexture = Assets.getTexture(FluidContainerAssetResolver.getFluidBaseUri(fluidType)).get();
-                canvas.drawTextureRaw(fluidTexture, JomlUtil.rectangleiFromMinAndSize(minX, fluidMinY, maxX, fluidMaxY), ScaleMode.TILED);
+                canvas.drawTextureRaw(fluidTexture, JomlUtil.rectangleiFromMinAndSize(minX, fluidMinY, maxX,
+                        fluidMaxY), ScaleMode.TILED);
             }
 
             canvas.drawTexture(texture, canvas.getRegion());
@@ -145,9 +145,9 @@ public class FluidContainerWidget extends CoreWidget {
     /**
      * Gets the preferred size of the widget contents.
      *
-     * @param canvas   The canvas on which the widget is to be drawn
+     * @param canvas The canvas on which the widget is to be drawn
      * @param sizeHint The size hint passed by the NUI system
-     * @return         The preferred size of the widget
+     * @return The preferred size of the widget
      */
     @Override
     public Vector2i getPreferredContentSize(Canvas canvas, Vector2i sizeHint) {
