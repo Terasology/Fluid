@@ -28,6 +28,7 @@ import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
+import org.terasology.math.JomlUtil;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
@@ -63,11 +64,11 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private FluidRegistry fluidRegistry;
     @In
     private InventoryManager inventoryManager;
-    
+
     @In
     private BlockManager blockManager;
     private Block air;
-    
+
     @In
     private ExtraBlockDataManager extraDataManager;
     private int flowIndex;
@@ -76,7 +77,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private boolean flowingLiquidsEnabled;
 
     private Random rand;
-    
+
     @Override
     public void initialise() {
         air = blockManager.getBlock(BlockManager.AIR_ID);
@@ -130,7 +131,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
                                        ItemComponent itemComponent) {
         if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
-            getLiquidInReach(event.getInstigatorLocation(), event.getDirection(), 3).ifPresent(pos -> {
+            getLiquidInReach(JomlUtil.from(event.getInstigatorLocation()), JomlUtil.from(event.getDirection()), 3).ifPresent(pos -> {
                 String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
                 if (fluidType != null && (fluidContainer.fluidType == null || fluidContainer.fluidType == fluidType)) {
                     EntityRef owner = item.getOwner();
@@ -191,7 +192,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
             worldProvider.setExtraData(flowIndex, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
-    
+
     // Round randomly as either floor or ceiling in a way that has 0 error on average for any given argument.
     private int randomRound(float x) {
         return (int) Math.floor(x + rand.nextFloat());
