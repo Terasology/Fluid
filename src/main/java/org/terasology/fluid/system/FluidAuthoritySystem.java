@@ -36,8 +36,9 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Side;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.math.JomlUtil;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.terasology.physics.CollisionGroup;
 import org.terasology.physics.HitResult;
 import org.terasology.physics.Physics;
@@ -79,11 +80,11 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private FluidRegistry fluidRegistry;
     @In
     private InventoryManager inventoryManager;
-    
+
     @In
     private BlockManager blockManager;
     private Block air;
-    
+
     @In
     private ExtraBlockDataManager extraDataManager;
     private int flowIndex;
@@ -92,7 +93,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
     private boolean flowingLiquidsEnabled;
 
     private Random rand;
-    
+
     @Override
     public void initialise() {
         air = blockManager.getBlock(BlockManager.AIR_ID);
@@ -134,7 +135,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
             return Optional.empty();
         }
         Vector3i pos = new Vector3i(hitResult.getBlockPosition());
-        pos.add(Side.inDirection(hitResult.getHitNormal()).getVector3i());
+        pos.add(Side.inDirection(hitResult.getHitNormal()).direction());
         if (worldProvider.getBlock(pos).equals(air)) {
             return Optional.of(pos);
         } else {
@@ -156,7 +157,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
             if (!onItemUseEvent.isConsumed()) {
                 EntityRef gaze = GazeAuthoritySystem.getGazeEntityForCharacter(character);
                 LocationComponent gazeLocation = gaze.getComponent(LocationComponent.class);
-                getLiquidInReach(gazeLocation.getWorldPosition(), gazeLocation.getWorldDirection(), character, characterComponent.interactionRange).ifPresent(pos -> {
+                getLiquidInReach(JomlUtil.from(gazeLocation.getWorldPosition()), JomlUtil.from(gazeLocation.getWorldDirection()), character, characterComponent.interactionRange).ifPresent(pos -> {
                     String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
                     if (fluidType != null && (fluidContainer.fluidType == null || fluidContainer.fluidType.equals(fluidType))) {
                         EntityRef owner = item.getOwner();
@@ -200,7 +201,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
                     if (removedItem != null) {
                         FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
 
-                        worldProvider.getWorldEntity().send(new PlaceBlocks(pos, liquid, event.getInstigator()));
+                        worldProvider.getWorldEntity().send(new PlaceBlocks(JomlUtil.from(pos), liquid, event.getInstigator()));
                         if (fluidComponent.volume > FLUID_PER_BLOCK) {
                             fluidComponent.volume -= FLUID_PER_BLOCK;
                         } else {
@@ -224,7 +225,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      */
     private float getLiquidInBlock(Vector3i pos) {
         if (flowingLiquidsEnabled) {
-            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, pos);
+            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, JomlUtil.from(pos));
             return LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
         } else {
             return FLUID_PER_BLOCK;
@@ -245,10 +246,10 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         if (liquidLevel == 0) {
             worldProvider.setBlock(pos, air);
         } else if (flowingLiquidsEnabled) {
-            worldProvider.setExtraData(flowIndex, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
+            worldProvider.setExtraData(flowIndex, JomlUtil.from(pos), LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
-    
+
     // Round randomly as either floor or ceiling in a way that has 0 error on average for any given argument.
     private int randomRound(float x) {
         return (int) Math.floor(x + rand.nextFloat());
