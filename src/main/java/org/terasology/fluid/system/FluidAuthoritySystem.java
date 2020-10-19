@@ -111,7 +111,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * there is no penetrable block preventing direct access.
      * If the returned option is non-empty, the block is guaranteed to be a liquid block.
      *
-     * @param start		the starting location
+     * @param start		the player's location, the location to look from
      * @param direction the direction to search for a liquid block
      * @param distance  the reachable distance in number of blocks
      *
@@ -129,6 +129,16 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
             return Optional.empty();
         }
     }
+
+    /**
+     * Find the block the player is looking at and return the position next to it where liquid should be placed.
+     * @param start     the player's location, the location to look from
+     * @param direction the direction to look in
+     * @param character the player (so that they aren't targeted themself)
+     * @param distance  the maximum distance to the targeted block
+     *
+     * @return The position to place the liquid, or empty if there's nothing within reach, there's an entity in the way, or there's a block in the way.
+     */
     private Optional<Vector3i> getPlacementPosition(final Vector3f start, final Vector3f direction, EntityRef character, float distance) {
         HitResult hitResult = physics.rayTrace(start, direction, distance, Sets.newHashSet(character), PHYSICSFILTER);
         if (!hitResult.isHit() || !hitResult.isWorldHit()) {
@@ -145,79 +155,95 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
 
     /**
      * Fill up the provided fluid container item with the current fluid interacted with in the game world.
+     * @param event              the player left clicking on something in the world
+     * @param character          the player
+     * @param characterComponent the CharacterComponent of the player entity
      */
     @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH)
     public void fillFluidContainerItem(AttackRequest event, EntityRef character, CharacterComponent characterComponent) {
         EntityRef item = event.getItem();
         FluidContainerItemComponent fluidContainer = item.getComponent(FluidContainerItemComponent.class);
-        if (fluidContainer != null && (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume)) {
-
-            OnItemUseEvent onItemUseEvent = new OnItemUseEvent();
-            character.send(onItemUseEvent);
-            if (!onItemUseEvent.isConsumed()) {
-                EntityRef gaze = GazeAuthoritySystem.getGazeEntityForCharacter(character);
-                LocationComponent gazeLocation = gaze.getComponent(LocationComponent.class);
-                getLiquidInReach(JomlUtil.from(gazeLocation.getWorldPosition()), JomlUtil.from(gazeLocation.getWorldDirection()), character, characterComponent.interactionRange).ifPresent(pos -> {
-                    String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
-                    if (fluidType != null && (fluidContainer.fluidType == null || fluidContainer.fluidType.equals(fluidType))) {
-                        EntityRef owner = item.getOwner();
-                        final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
-                        if (removedItem != null) {
-                            float blockAmount = getLiquidInBlock(pos);
-
-                            FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
-                            float totalAmount = blockAmount + fluidComponent.volume;
-                            if (totalAmount > fluidComponent.maxVolume) {
-                                blockAmount = totalAmount - fluidComponent.maxVolume;
-                                totalAmount = fluidComponent.maxVolume;
-                            } else {
-                                blockAmount = 0;
-                            }
-                            // Set the contents of this fluid container and fill it up to max capacity.
-                            FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
-
-                            if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
-                                removedItem.destroy();
-                            }
-
-                            // This will be less than the original liquid height, unless the container somehow started off overfull.
-                            setLiquidInBlock(pos, blockAmount);
-                        }
-                    }
-                });
-            }
+        if (fluidContainer == null || (fluidContainer.fluidType != null && fluidContainer.volume >= fluidContainer.maxVolume)) {
+            return;
         }
+        OnItemUseEvent onItemUseEvent = new OnItemUseEvent();
+        character.send(onItemUseEvent);
+        if (onItemUseEvent.isConsumed()) {
+            return;
+        }
+        EntityRef gaze = GazeAuthoritySystem.getGazeEntityForCharacter(character);
+        LocationComponent gazeLocation = gaze.getComponent(LocationComponent.class);
+        getLiquidInReach(gazeLocation.getWorldPosition(new Vector3f()), gazeLocation.getWorldDirection(new Vector3f()), character, characterComponent.interactionRange).ifPresent(pos -> {
+            String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
+            if (fluidType == null || (fluidContainer.fluidType != null && !fluidContainer.fluidType.equals(fluidType))) {
+                return;
+            }
+            EntityRef owner = item.getOwner();
+            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+            if (removedItem == null) {
+                return;
+            }
+            float blockAmount = getLiquidInBlock(pos);
+
+            FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+            float totalAmount = blockAmount + fluidComponent.volume;
+            if (totalAmount > fluidComponent.maxVolume) {
+                blockAmount = totalAmount - fluidComponent.maxVolume;
+                totalAmount = fluidComponent.maxVolume;
+            } else {
+                blockAmount = 0;
+            }
+            // Set the contents of this fluid container and fill it up to max capacity.
+            FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
+
+            if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                removedItem.destroy();
+            }
+
+            // This will be less than the original liquid height, unless the container somehow started off overfull.
+            setLiquidInBlock(pos, blockAmount);
+        });
     }
 
+    /**
+     * Empty the selected fluid container item by placing its contents in the world as a liquid.
+     *
+     * @param event          the player right clicking on something with a fluid container
+     * @param item           the item they're holding at the time
+     * @param fluidContainer the FluidContainerItemComponent of the item
+     */
     @ReceiveEvent
     public void emptyFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
         CharacterComponent characterComponent = event.getInstigator().getComponent(CharacterComponent.class);
-        if (fluidContainer.fluidType != null && characterComponent != null) {
-            getPlacementPosition(event.getOrigin(), event.getDirection(), event.getInstigator(), characterComponent.interactionRange).ifPresent(pos -> {
-                Block liquid = fluidRegistry.getCorrespondingLiquid(fluidContainer.fluidType);
-                if (liquid != null) {
-                    EntityRef owner = item.getOwner();
-                    final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
-                    if (removedItem != null) {
-                        FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
-
-                        worldProvider.getWorldEntity().send(new PlaceBlocks(JomlUtil.from(pos), liquid, event.getInstigator()));
-                        if (fluidComponent.volume > FLUID_PER_BLOCK) {
-                            fluidComponent.volume -= FLUID_PER_BLOCK;
-                        } else {
-                            setLiquidInBlock(pos, fluidComponent.volume);
-                            fluidComponent.volume = 0;
-                            fluidComponent.fluidType = null;
-                        }
-                        removedItem.saveComponent(fluidComponent);
-
-                        if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
-                            removedItem.destroy();
-                        }
-                    }
-                }
-            });
+        if (fluidContainer.fluidType == null || characterComponent == null) {
+            return;
         }
+        getPlacementPosition(event.getOrigin(), event.getDirection(), event.getInstigator(), characterComponent.interactionRange).ifPresent(pos -> {
+            Block liquid = fluidRegistry.getCorrespondingLiquid(fluidContainer.fluidType);
+            if (liquid == null) {
+                return;
+            }
+            EntityRef owner = item.getOwner();
+            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+            if (removedItem == null) {
+                return;
+            }
+            FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+
+            worldProvider.getWorldEntity().send(new PlaceBlocks(JomlUtil.from(pos), liquid, event.getInstigator()));
+            if (fluidComponent.volume > FLUID_PER_BLOCK) {
+                fluidComponent.volume -= FLUID_PER_BLOCK;
+            } else {
+                setLiquidInBlock(pos, fluidComponent.volume);
+                fluidComponent.volume = 0;
+                fluidComponent.fluidType = null;
+            }
+            removedItem.saveComponent(fluidComponent);
+
+            if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                removedItem.destroy();
+            }
+        });
     }
 
     /**
