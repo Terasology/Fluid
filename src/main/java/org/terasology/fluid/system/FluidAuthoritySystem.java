@@ -15,26 +15,39 @@
  */
 package org.terasology.fluid.system;
 
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.ComponentSystemManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.flowingliquids.world.block.LiquidData;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.logic.characters.CharacterComponent;
+import org.terasology.logic.characters.GazeAuthoritySystem;
+import org.terasology.logic.characters.events.AttackRequest;
+import org.terasology.logic.characters.events.OnItemUseEvent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
+import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.Side;
 import org.terasology.math.JomlUtil;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.math.geom.Vector3i;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.terasology.physics.CollisionGroup;
+import org.terasology.physics.HitResult;
+import org.terasology.physics.Physics;
+import org.terasology.physics.StandardCollisionGroup;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
+import org.terasology.world.block.entity.placement.PlaceBlocks;
 import org.terasology.world.chunks.blockdata.ExtraBlockDataManager;
 
 import java.math.RoundingMode;
@@ -57,9 +70,12 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * sensibly with the pre-existing container sizes in ManualLabor.
      */
     private static final float FLUID_PER_BLOCK = 1000;
+    public static final CollisionGroup[] PHYSICSFILTER = {StandardCollisionGroup.LIQUID, StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD, StandardCollisionGroup.CHARACTER};
 
     @In
     private WorldProvider worldProvider;
+    @In
+    private Physics physics;
     @In
     private FluidRegistry fluidRegistry;
     @In
@@ -95,72 +111,139 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * there is no penetrable block preventing direct access.
      * If the returned option is non-empty, the block is guaranteed to be a liquid block.
      *
-     * @param start		the starting location
+     * @param start		the player's location, the location to look from
      * @param direction the direction to search for a liquid block
      * @param distance  the reachable distance in number of blocks
      *
      * @return option of the liquid block found in reach, empty if none was found
      */
-    private Optional<Vector3i> getLiquidInReach(final Vector3f start, final Vector3f direction, int distance) {
-        Vector3f location = new Vector3f(start);
-        Vector3f normalizedDirection = new Vector3f(direction).normalize();
-        for (int i = 0; i < distance; i++) {
-            location.add(normalizedDirection);
-            Vector3i intLocation = new Vector3i(location, RoundingMode.HALF_DOWN);
-            Block block = worldProvider.getBlock(intLocation);
-            if (block.isLiquid()) {
-                return Optional.of(intLocation);
-            }
-            if (!block.isPenetrable()) {
-                return Optional.empty();
-            }
+    private Optional<Vector3i> getLiquidInReach(final Vector3f start, final Vector3f direction, EntityRef character, float distance) {
+        HitResult hitResult = physics.rayTrace(start, direction, distance, Sets.newHashSet(character), PHYSICSFILTER);
+        if (!hitResult.isHit() || !hitResult.isWorldHit()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        Vector3i pos = hitResult.getBlockPosition();
+        if (worldProvider.getBlock(pos).isLiquid()) {
+            return Optional.of(pos);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Find the block the player is looking at and return the position next to it where liquid should be placed.
+     * @param start     the player's location, the location to look from
+     * @param direction the direction to look in
+     * @param character the player (so that they aren't targeted themself)
+     * @param distance  the maximum distance to the targeted block
+     *
+     * @return The position to place the liquid, or empty if there's nothing within reach, there's an entity in the way, or there's a block in the way.
+     */
+    private Optional<Vector3i> getPlacementPosition(final Vector3f start, final Vector3f direction, EntityRef character, float distance) {
+        HitResult hitResult = physics.rayTrace(start, direction, distance, Sets.newHashSet(character), PHYSICSFILTER);
+        if (!hitResult.isHit() || !hitResult.isWorldHit()) {
+            return Optional.empty();
+        }
+        Vector3i pos = new Vector3i(hitResult.getBlockPosition());
+        pos.add(Side.inDirection(hitResult.getHitNormal()).direction());
+        if (worldProvider.getBlock(pos).equals(air)) {
+            return Optional.of(pos);
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
      * Fill up the provided fluid container item with the current fluid interacted with in the game world.
+     * @param event              the player left clicking on something in the world
+     * @param character          the player
+     * @param characterComponent the CharacterComponent of the player entity
+     */
+    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH)
+    public void fillFluidContainerItem(AttackRequest event, EntityRef character, CharacterComponent characterComponent) {
+        EntityRef item = event.getItem();
+        FluidContainerItemComponent fluidContainer = item.getComponent(FluidContainerItemComponent.class);
+        if (fluidContainer == null || (fluidContainer.fluidType != null && fluidContainer.volume >= fluidContainer.maxVolume)) {
+            return;
+        }
+        OnItemUseEvent onItemUseEvent = new OnItemUseEvent();
+        character.send(onItemUseEvent);
+        if (onItemUseEvent.isConsumed()) {
+            return;
+        }
+        EntityRef gaze = GazeAuthoritySystem.getGazeEntityForCharacter(character);
+        LocationComponent gazeLocation = gaze.getComponent(LocationComponent.class);
+        getLiquidInReach(gazeLocation.getWorldPosition(new Vector3f()), gazeLocation.getWorldDirection(new Vector3f()), character, characterComponent.interactionRange).ifPresent(pos -> {
+            String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
+            if (fluidType == null || (fluidContainer.fluidType != null && !fluidContainer.fluidType.equals(fluidType))) {
+                return;
+            }
+            EntityRef owner = item.getOwner();
+            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+            if (removedItem == null) {
+                return;
+            }
+            float blockAmount = getLiquidInBlock(pos);
+
+            FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+            float totalAmount = blockAmount + fluidComponent.volume;
+            if (totalAmount > fluidComponent.maxVolume) {
+                blockAmount = totalAmount - fluidComponent.maxVolume;
+                totalAmount = fluidComponent.maxVolume;
+            } else {
+                blockAmount = 0;
+            }
+            // Set the contents of this fluid container and fill it up to max capacity.
+            FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
+
+            if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                removedItem.destroy();
+            }
+
+            // This will be less than the original liquid height, unless the container somehow started off overfull.
+            setLiquidInBlock(pos, blockAmount);
+        });
+    }
+
+    /**
+     * Empty the selected fluid container item by placing its contents in the world as a liquid.
      *
-     * @param event          The event which has details about how this entity was activated.
-     * @param item           The reference to the item being activated.
-     * @param fluidContainer The component used for storing fluid in a container.
-     * @param itemComponent  A component included for filtering out non-matching events. Here, we only want entities
-     *                       which are used as items.
+     * @param event          the player right clicking on something with a fluid container
+     * @param item           the item they're holding at the time
+     * @param fluidContainer the FluidContainerItemComponent of the item
      */
     @ReceiveEvent
-    public void fillFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer,
-                                       ItemComponent itemComponent) {
-        if (fluidContainer.fluidType == null || fluidContainer.volume < fluidContainer.maxVolume) {
-            getLiquidInReach(JomlUtil.from(event.getInstigatorLocation()), JomlUtil.from(event.getDirection()), 3).ifPresent(pos -> {
-                String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
-                if (fluidType != null && (fluidContainer.fluidType == null || fluidContainer.fluidType == fluidType)) {
-                    EntityRef owner = item.getOwner();
-                    final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
-                    if (removedItem != null) {
-                        float blockAmount = getLiquidInBlock(pos);
-
-                        FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
-                        float totalAmount = blockAmount + fluidComponent.volume;
-                        if (totalAmount > fluidComponent.maxVolume) {
-                            blockAmount = totalAmount - fluidComponent.maxVolume;
-                            totalAmount = fluidComponent.maxVolume;
-                        } else {
-                            blockAmount = 0;
-                        }
-                        // Set the contents of this fluid container and fill it up to max capacity.
-                        FluidUtils.setFluidForContainerItem(removedItem, fluidType, totalAmount);
-
-                        if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
-                            removedItem.destroy();
-                        }
-
-                        // This will be less than the original liquid height, unless the container somehow started off overfull.
-                        setLiquidInBlock(pos, blockAmount);
-                    }
-                    event.consume();
-                }
-            });
+    public void emptyFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
+        CharacterComponent characterComponent = event.getInstigator().getComponent(CharacterComponent.class);
+        if (fluidContainer.fluidType == null || characterComponent == null) {
+            return;
         }
+        getPlacementPosition(event.getOrigin(), event.getDirection(), event.getInstigator(), characterComponent.interactionRange).ifPresent(pos -> {
+            Block liquid = fluidRegistry.getCorrespondingLiquid(fluidContainer.fluidType);
+            if (liquid == null) {
+                return;
+            }
+            EntityRef owner = item.getOwner();
+            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+            if (removedItem == null) {
+                return;
+            }
+            FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
+
+            worldProvider.getWorldEntity().send(new PlaceBlocks(JomlUtil.from(pos), liquid, event.getInstigator()));
+            if (fluidComponent.volume > FLUID_PER_BLOCK) {
+                fluidComponent.volume -= FLUID_PER_BLOCK;
+            } else {
+                setLiquidInBlock(pos, fluidComponent.volume);
+                fluidComponent.volume = 0;
+                fluidComponent.fluidType = null;
+            }
+            removedItem.saveComponent(fluidComponent);
+
+            if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
+                removedItem.destroy();
+            }
+        });
     }
 
     /**
@@ -168,7 +251,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      */
     private float getLiquidInBlock(Vector3i pos) {
         if (flowingLiquidsEnabled) {
-            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, pos);
+            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, JomlUtil.from(pos));
             return LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
         } else {
             return FLUID_PER_BLOCK;
@@ -189,7 +272,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         if (liquidLevel == 0) {
             worldProvider.setBlock(pos, air);
         } else if (flowingLiquidsEnabled) {
-            worldProvider.setExtraData(flowIndex, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
+            worldProvider.setExtraData(flowIndex, JomlUtil.from(pos), LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
 
