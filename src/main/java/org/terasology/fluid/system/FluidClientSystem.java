@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
+import org.joml.Rectanglei;
 import org.terasology.assets.Asset;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
@@ -147,8 +148,7 @@ public class FluidClientSystem extends BaseComponentSystem {
             ResourceUrn backgroundTexture = TextureUtil.getTextureUriForColor(Color.WHITE);
             ResourceUrn barTexture = TextureUtil.getTextureUriForColor(Color.BLUE);
 
-            canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), JomlUtil.rectangleiFromMinAndSize(minX,
-                    minY, maxX, maxY));
+            canvas.drawTexture(Assets.get(backgroundTexture, Texture.class).get(), new Rectanglei(minX, minY, maxX, maxY));
             int fillingBarHeight = (int) (fillingPercentage * (maxY - minY - 1));
             int fillingBarLength = maxX - minX - 1;
             canvas.drawTexture(Assets.get(barTexture, Texture.class).get(), JomlUtil.rectangleiFromMinAndSize(minX + 1,
