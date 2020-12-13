@@ -230,7 +230,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
             }
             FluidContainerItemComponent fluidComponent = removedItem.getComponent(FluidContainerItemComponent.class);
 
-            worldProvider.getWorldEntity().send(new PlaceBlocks(JomlUtil.from(pos), liquid, event.getInstigator()));
+            worldProvider.getWorldEntity().send(new PlaceBlocks(pos, liquid, event.getInstigator()));
             if (fluidComponent.volume > FLUID_PER_BLOCK) {
                 fluidComponent.volume -= FLUID_PER_BLOCK;
             } else {
