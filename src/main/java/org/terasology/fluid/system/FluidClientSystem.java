@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
-import org.joml.Rectanglei;
+import org.joml.primitives.Rectanglei;
 import org.terasology.assets.Asset;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
