@@ -212,7 +212,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param item           the item they're holding at the time
      * @param fluidContainer the FluidContainerItemComponent of the item
      */
-    @ReceiveEvent
+    @ReceiveEvent(priority = EventPriority.PRIORITY_TRIVIAL)
     public void emptyFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
         CharacterComponent characterComponent = event.getInstigator().getComponent(CharacterComponent.class);
         if (fluidContainer.fluidType == null || characterComponent == null) {
