@@ -15,9 +15,9 @@
  */
 package org.terasology.fluid.component;
 
+import org.joml.Vector2f;
 import org.terasology.entitySystem.Component;
 import org.terasology.logic.inventory.ItemDifferentiating;
-import org.terasology.math.geom.Vector2f;
 import org.terasology.network.Replicate;
 import org.terasology.rendering.assets.texture.TextureRegionAsset;
 
