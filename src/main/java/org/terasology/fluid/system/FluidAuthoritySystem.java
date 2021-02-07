@@ -1,21 +1,10 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
 import com.google.common.collect.Sets;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.ComponentSystemManager;
@@ -33,12 +22,8 @@ import org.terasology.logic.characters.events.AttackRequest;
 import org.terasology.logic.characters.events.OnItemUseEvent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Side;
-import org.terasology.math.JomlUtil;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 import org.terasology.physics.CollisionGroup;
 import org.terasology.physics.HitResult;
 import org.terasology.physics.Physics;
@@ -50,7 +35,6 @@ import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.entity.placement.PlaceBlocks;
 import org.terasology.world.chunks.blockdata.ExtraBlockDataManager;
 
-import java.math.RoundingMode;
 import java.util.Optional;
 import java.util.Random;
 
@@ -251,7 +235,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      */
     private float getLiquidInBlock(Vector3i pos) {
         if (flowingLiquidsEnabled) {
-            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, JomlUtil.from(pos));
+            byte liquidData = (byte) worldProvider.getExtraData(flowIndex, pos);
             return LiquidData.getHeight(liquidData) * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
         } else {
             return FLUID_PER_BLOCK;
@@ -272,7 +256,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         if (liquidLevel == 0) {
             worldProvider.setBlock(pos, air);
         } else if (flowingLiquidsEnabled) {
-            worldProvider.setExtraData(flowIndex, JomlUtil.from(pos), LiquidData.setHeight(LiquidData.FULL, liquidLevel));
+            worldProvider.setExtraData(flowIndex, pos, LiquidData.setHeight(LiquidData.FULL, liquidLevel));
         }
     }
 
