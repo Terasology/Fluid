@@ -3,7 +3,7 @@
 package org.terasology.fluid.ui;
 
 import org.terasology.fluid.system.FluidContainerAssetResolver;
-import org.terasology.math.JomlUtil;
+import org.terasology.joml.geom.Rectanglei;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.nui.ScaleMode;
 import org.terasology.utilities.Assets;
@@ -110,7 +110,7 @@ public class FluidContainerWidget extends CoreWidget {
                 }
 
                 Texture fluidTexture = Assets.getTexture(FluidContainerAssetResolver.getFluidBaseUri(fluidType)).get();
-                canvas.drawTextureRaw(fluidTexture, JomlUtil.rectangleiFromMinAndSize(minX, fluidMinY, maxX, fluidMaxY), ScaleMode.TILED);
+                canvas.drawTextureRaw(fluidTexture, new Rectanglei(minX, fluidMinY).setSize(maxX, fluidMaxY), ScaleMode.TILED);
             }
 
             canvas.drawTexture(texture, canvas.getRegion());
