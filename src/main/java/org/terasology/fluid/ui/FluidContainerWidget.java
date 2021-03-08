@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.ui;
 
-import org.terasology.fluid.system.FluidContainerAssetResolver;
-import org.terasology.joml.geom.Rectanglei;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.nui.ScaleMode;
-import org.terasology.utilities.Assets;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.joml.Vector2i;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.rendering.assets.texture.Texture;
+import org.terasology.engine.rendering.assets.texture.TextureRegion;
+import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.fluid.system.FluidRegistry;
-import org.joml.Vector2i;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.rendering.assets.texture.TextureRegion;
+import org.terasology.joml.geom.Rectanglei;
 import org.terasology.nui.BaseInteractionListener;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.CoreWidget;
 import org.terasology.nui.InteractionListener;
 import org.terasology.nui.LayoutConfig;
+import org.terasology.nui.ScaleMode;
 import org.terasology.nui.databinding.Binding;
 import org.terasology.nui.databinding.DefaultBinding;
 

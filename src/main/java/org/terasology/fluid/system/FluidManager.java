@@ -15,7 +15,7 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.EntityRef;
 
 /**
  * Interface for a generic fluid manager.

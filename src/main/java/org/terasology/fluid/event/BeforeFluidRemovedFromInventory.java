@@ -15,8 +15,8 @@
  */
 package org.terasology.fluid.event;
 
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.AbstractConsumableEvent;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.AbstractConsumableEvent;
 
 /**
  * This event indicates that an entity is removing a fluid in from inventory slot, and contains attributes indicating

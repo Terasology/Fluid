@@ -15,20 +15,20 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.network.NetworkComponent;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.Share;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.event.BeforeFluidPutInInventory;
 import org.terasology.fluid.event.BeforeFluidRemovedFromInventory;
 import org.terasology.fluid.event.FluidVolumeChangedInInventory;
-import org.terasology.network.NetworkComponent;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.Share;
 
 import java.util.List;
 

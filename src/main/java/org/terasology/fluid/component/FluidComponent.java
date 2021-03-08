@@ -15,8 +15,8 @@
  */
 package org.terasology.fluid.component;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.network.Replicate;
 
 /**
  * This component indicates that an entity is a fluid, and contains basic attributes of the fluid.

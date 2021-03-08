@@ -15,15 +15,14 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.entitySystem.prefab.PrefabManager;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.prefab.Prefab;
+import org.terasology.engine.entitySystem.prefab.PrefabManager;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.world.block.Block;
 import org.terasology.naming.Name;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.In;
-import org.terasology.registry.Share;
-import org.terasology.world.block.Block;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

@@ -15,8 +15,8 @@
  */
 package org.terasology.fluid.component;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.math.IntegerRange;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.math.IntegerRange;
 
 import java.util.Map;
 

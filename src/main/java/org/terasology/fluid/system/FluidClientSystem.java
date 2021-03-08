@@ -6,25 +6,24 @@ import org.joml.Vector2i;
 import org.terasology.assets.Asset;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.assets.management.AssetManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.logic.inventory.ItemComponent;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.rendering.assets.texture.Texture;
+import org.terasology.engine.rendering.assets.texture.TextureUtil;
+import org.terasology.engine.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
+import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.joml.geom.Rectanglei;
-import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.Color;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.registry.In;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.assets.texture.TextureUtil;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
-import org.terasology.utilities.Assets;
 
 import java.util.Optional;
 
@@ -48,7 +47,7 @@ public class FluidClientSystem extends BaseComponentSystem {
      * @param fluidContainerItem    The fluid container item component of the entity.
      */
     @ReceiveEvent
-    public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+    public void setItemTooltip(org.terasology.engine.rendering.nui.layers.ingame.inventory.GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         // Add tooltip with current fluid amounts.
         if (fluidContainerItem.fluidType != null) {
             event.getTooltipLines().add(new TooltipLine("This holds " + (int) fluidContainerItem.volume + "/" +

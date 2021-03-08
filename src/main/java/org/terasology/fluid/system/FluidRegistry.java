@@ -15,8 +15,8 @@
  */
 package org.terasology.fluid.system;
 
-import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.world.block.Block;
+import org.terasology.engine.entitySystem.prefab.Prefab;
+import org.terasology.engine.world.block.Block;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

@@ -15,8 +15,8 @@
  */
 package org.terasology.fluid.event;
 
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.Event;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.Event;
 
 /**
  * This event indicates that the volume of a fluid was changed while it was in an inventory.
