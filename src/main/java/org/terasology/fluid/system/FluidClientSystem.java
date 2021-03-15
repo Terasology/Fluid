@@ -23,8 +23,8 @@ import org.terasology.joml.geom.Rectanglei;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.Color;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
+import org.terasology.module.inventory.ui.GetItemTooltip;
+import org.terasology.module.inventory.ui.InventoryCellRendered;
 
 import java.util.Optional;
 

@@ -19,7 +19,7 @@ import org.joml.Vector2f;
 import org.terasology.engine.entitySystem.Component;
 import org.terasology.engine.network.Replicate;
 import org.terasology.engine.rendering.assets.texture.TextureRegionAsset;
-import org.terasology.logic.inventory.ItemDifferentiating;
+import org.terasology.module.inventory.components.ItemDifferentiating;
 
 /**
  * This component indicates that an entity is a container capable of holding fluids.
