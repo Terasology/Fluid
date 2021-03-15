@@ -19,7 +19,7 @@ import org.terasology.engine.logic.characters.GazeAuthoritySystem;
 import org.terasology.engine.logic.characters.events.AttackRequest;
 import org.terasology.engine.logic.characters.events.OnItemUseEvent;
 import org.terasology.engine.logic.common.ActivateEvent;
-import org.terasology.engine.logic.inventory.InventoryManager;
+import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.math.Side;
 import org.terasology.engine.physics.CollisionGroup;
