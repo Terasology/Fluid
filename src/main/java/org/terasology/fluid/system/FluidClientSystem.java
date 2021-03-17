@@ -17,13 +17,14 @@ import org.terasology.engine.logic.inventory.ItemComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.rendering.assets.texture.Texture;
 import org.terasology.engine.rendering.assets.texture.TextureUtil;
-import org.terasology.engine.rendering.nui.layers.ingame.inventory.InventoryCellRendered;
 import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.joml.geom.Rectanglei;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.Color;
 import org.terasology.nui.widgets.TooltipLine;
+import org.terasology.module.inventory.ui.GetItemTooltip;
+import org.terasology.module.inventory.ui.InventoryCellRendered;
 
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ public class FluidClientSystem extends BaseComponentSystem {
      * @param fluidContainerItem    The fluid container item component of the entity.
      */
     @ReceiveEvent
-    public void setItemTooltip(org.terasology.engine.rendering.nui.layers.ingame.inventory.GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
+    public void setItemTooltip(GetItemTooltip event, EntityRef container, FluidContainerItemComponent fluidContainerItem) {
         // Add tooltip with current fluid amounts.
         if (fluidContainerItem.fluidType != null) {
             event.getTooltipLines().add(new TooltipLine("This holds " + (int) fluidContainerItem.volume + "/" +
