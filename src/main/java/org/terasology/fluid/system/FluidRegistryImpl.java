@@ -22,7 +22,7 @@ import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.registry.Share;
 import org.terasology.engine.world.block.Block;
-import org.terasology.naming.Name;
+import org.terasology.gestalt.naming.Name;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
