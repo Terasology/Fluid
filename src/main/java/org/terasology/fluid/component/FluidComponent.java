@@ -18,7 +18,7 @@ public class FluidComponent implements Component<FluidComponent> {
     public float volume;
 
     @Override
-    public void copy(FluidComponent other) {
+    public void copyFrom(FluidComponent other) {
         this.fluidType = other.fluidType;
         this.volume = other.volume;
     }

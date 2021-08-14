@@ -15,7 +15,7 @@ public class FluidInventoryAccessComponent implements Component<FluidInventoryAc
     public Map<String, IntegerRange> output;
 
     @Override
-    public void copy(FluidInventoryAccessComponent other) {
+    public void copyFrom(FluidInventoryAccessComponent other) {
         this.input.clear();
         for (Map.Entry<String, IntegerRange> entry : other.input.entrySet()) {
             this.input.put(entry.getKey(), entry.getValue().copy());

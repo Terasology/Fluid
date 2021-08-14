@@ -75,7 +75,7 @@ public class FluidContainerItemComponent implements Component<FluidContainerItem
     }
 
     @Override
-    public void copy(FluidContainerItemComponent other) {
+    public void copyFrom(FluidContainerItemComponent other) {
         this.fluidType = other.fluidType;
         this.volume = other.volume;
         this.maxVolume = other.maxVolume;

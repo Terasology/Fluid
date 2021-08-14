@@ -44,7 +44,7 @@ public class FluidInventoryComponent implements Component<FluidInventoryComponen
     }
 
     @Override
-    public void copy(FluidInventoryComponent other) {
+    public void copyFrom(FluidInventoryComponent other) {
         this.fluidSlots = Lists.newLinkedList(this.fluidSlots);
         this.maximumVolumes = Lists.newLinkedList(maximumVolumes);
     }
