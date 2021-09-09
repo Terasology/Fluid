@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.terasology.engine.core.ComponentSystemManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.EventPriority;
+import org.terasology.engine.entitySystem.event.Priority;
 import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
@@ -19,7 +20,6 @@ import org.terasology.engine.logic.characters.GazeAuthoritySystem;
 import org.terasology.engine.logic.characters.events.AttackRequest;
 import org.terasology.engine.logic.characters.events.OnItemUseEvent;
 import org.terasology.engine.logic.common.ActivateEvent;
-import org.terasology.module.inventory.systems.InventoryManager;
 import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.math.Side;
 import org.terasology.engine.physics.CollisionGroup;
@@ -34,6 +34,7 @@ import org.terasology.engine.world.block.entity.placement.PlaceBlocks;
 import org.terasology.engine.world.chunks.blockdata.ExtraBlockDataManager;
 import org.terasology.flowingliquids.world.block.LiquidData;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.module.inventory.systems.InventoryManager;
 
 import java.util.Optional;
 import java.util.Random;
@@ -143,7 +144,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param character          the player
      * @param characterComponent the CharacterComponent of the player entity
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH)
+    @Priority(EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent
     public void fillFluidContainerItem(AttackRequest event, EntityRef character, CharacterComponent characterComponent) {
         EntityRef item = event.getItem();
         FluidContainerItemComponent fluidContainer = item.getComponent(FluidContainerItemComponent.class);
@@ -196,7 +198,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param item           the item they're holding at the time
      * @param fluidContainer the FluidContainerItemComponent of the item
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_TRIVIAL)
+    @Priority(EventPriority.PRIORITY_TRIVIAL)
+    @ReceiveEvent
     public void emptyFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
         CharacterComponent characterComponent = event.getInstigator().getComponent(CharacterComponent.class);
         if (fluidContainer.fluidType == null || characterComponent == null) {
