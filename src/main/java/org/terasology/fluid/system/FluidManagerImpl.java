@@ -1,18 +1,5 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
 import org.terasology.engine.entitySystem.entity.EntityManager;
@@ -35,7 +22,7 @@ import java.util.List;
 /**
  * Handles the adding, removing and moving of fluids. An implementation of the FluidManager interface.
  */
-@RegisterSystem(value = RegisterMode.AUTHORITY)
+@RegisterSystem(RegisterMode.AUTHORITY)
 @Share(FluidManager.class)
 public class FluidManagerImpl extends BaseComponentSystem implements FluidManager {
     /**
@@ -197,7 +184,8 @@ public class FluidManagerImpl extends BaseComponentSystem implements FluidManage
      * @return              Whether the fluid was added successfully
      */
     @Override
-    public boolean addFluidFromHolder(EntityRef instigator, EntityRef inventory, EntityRef holder, int slot, String fluidType, float volume) {
+    public boolean addFluidFromHolder(EntityRef instigator, EntityRef inventory,
+                                      EntityRef holder, int slot, String fluidType, float volume) {
         FluidInventoryComponent fluidInventory = inventory.getComponent(FluidInventoryComponent.class);
         FluidContainerItemComponent fluidHolder = holder.getComponent(FluidContainerItemComponent.class);
 

@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.ui;
 
@@ -99,7 +99,7 @@ public class FluidContainerWidget extends CoreWidget {
                 Vector2i size = canvas.size();
                 int fluidMinY;
                 int fluidMaxY;
-                float yPerc = 1f * (minY + result * (maxY - minY)) / texture.getHeight();
+                float yPerc = (minY + result * (maxY - minY)) / texture.getHeight();
                 int y = Math.round(yPerc * size.y);
                 if (minY < maxY) {
                     fluidMinY = minY;

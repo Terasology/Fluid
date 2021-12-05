@@ -5,14 +5,15 @@ package org.terasology.fluid.component;
 import org.terasology.engine.math.IntegerRange;
 import org.terasology.gestalt.entitysystem.component.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A component for integration with a Computer module.
  */
 public class FluidInventoryAccessComponent implements Component<FluidInventoryAccessComponent> {
-    public Map<String, IntegerRange> input;
-    public Map<String, IntegerRange> output;
+    public Map<String, IntegerRange> input = new HashMap<>();
+    public Map<String, IntegerRange> output = new HashMap<>();
 
     @Override
     public void copyFrom(FluidInventoryAccessComponent other) {
