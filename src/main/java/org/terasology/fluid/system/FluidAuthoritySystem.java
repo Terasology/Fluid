@@ -5,12 +5,10 @@ package org.terasology.fluid.system;
 import com.google.common.collect.Sets;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.engine.core.ComponentSystemManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.EventPriority;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.event.Priority;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -19,7 +17,6 @@ import org.terasology.engine.logic.characters.GazeAuthoritySystem;
 import org.terasology.engine.logic.characters.events.AttackRequest;
 import org.terasology.engine.logic.characters.events.OnItemUseEvent;
 import org.terasology.engine.logic.common.ActivateEvent;
-import org.terasology.module.inventory.systems.InventoryManager;
 import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.math.Side;
 import org.terasology.engine.physics.CollisionGroup;
@@ -34,6 +31,8 @@ import org.terasology.engine.world.block.entity.placement.PlaceBlocks;
 import org.terasology.engine.world.chunks.blockdata.ExtraBlockDataManager;
 import org.terasology.flowingliquids.world.block.LiquidData;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
+import org.terasology.module.inventory.systems.InventoryManager;
 
 import java.util.Optional;
 import java.util.Random;
@@ -47,14 +46,15 @@ import java.util.Random;
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class FluidAuthoritySystem extends BaseComponentSystem {
 
-    private static final Logger logger = LoggerFactory.getLogger(FluidAuthoritySystem.class);
+    public static final CollisionGroup[] PHYSICSFILTER = {
+            StandardCollisionGroup.LIQUID, StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD, StandardCollisionGroup.CHARACTER
+    };
 
     /**
      * If one block is 1m across, the fluid units are litres. This works reasonably
      * sensibly with the pre-existing container sizes in ManualLabor.
      */
     private static final float FLUID_PER_BLOCK = 1000;
-    public static final CollisionGroup[] PHYSICSFILTER = {StandardCollisionGroup.LIQUID, StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD, StandardCollisionGroup.CHARACTER};
 
     @In
     private WorldProvider worldProvider;
@@ -95,7 +95,7 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * there is no penetrable block preventing direct access.
      * If the returned option is non-empty, the block is guaranteed to be a liquid block.
      *
-     * @param start		the player's location, the location to look from
+     * @param start     the player's location, the location to look from
      * @param direction the direction to search for a liquid block
      * @param distance  the reachable distance in number of blocks
      *
@@ -121,7 +121,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param character the player (so that they aren't targeted themself)
      * @param distance  the maximum distance to the targeted block
      *
-     * @return The position to place the liquid, or empty if there's nothing within reach, there's an entity in the way, or there's a block in the way.
+     * @return The position to place the liquid, or empty if there's nothing within reach, there's an entity in the way,
+     *     or there's a block in the way.
      */
     private Optional<Vector3i> getPlacementPosition(final Vector3f start, final Vector3f direction, EntityRef character, float distance) {
         HitResult hitResult = physics.rayTrace(start, direction, distance, Sets.newHashSet(character), PHYSICSFILTER);
@@ -143,7 +144,8 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param character          the player
      * @param characterComponent the CharacterComponent of the player entity
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH)
+    @Priority(EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent
     public void fillFluidContainerItem(AttackRequest event, EntityRef character, CharacterComponent characterComponent) {
         EntityRef item = event.getItem();
         FluidContainerItemComponent fluidContainer = item.getComponent(FluidContainerItemComponent.class);
@@ -157,13 +159,18 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
         }
         EntityRef gaze = GazeAuthoritySystem.getGazeEntityForCharacter(character);
         LocationComponent gazeLocation = gaze.getComponent(LocationComponent.class);
-        getLiquidInReach(gazeLocation.getWorldPosition(new Vector3f()), gazeLocation.getWorldDirection(new Vector3f()), character, characterComponent.interactionRange).ifPresent(pos -> {
+        getLiquidInReach(
+                gazeLocation.getWorldPosition(new Vector3f()),
+                gazeLocation.getWorldDirection(new Vector3f()),
+                character,
+                characterComponent.interactionRange).ifPresent(pos -> {
             String fluidType = fluidRegistry.getCorrespondingFluid(worldProvider.getBlock(pos));
             if (fluidType == null || (fluidContainer.fluidType != null && !fluidContainer.fluidType.equals(fluidType))) {
                 return;
             }
             EntityRef owner = item.getOwner();
-            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
+            final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item,
+                    false, 1);
             if (removedItem == null) {
                 return;
             }
@@ -196,13 +203,16 @@ public class FluidAuthoritySystem extends BaseComponentSystem {
      * @param item           the item they're holding at the time
      * @param fluidContainer the FluidContainerItemComponent of the item
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_TRIVIAL)
+    @Priority(EventPriority.PRIORITY_TRIVIAL)
+    @ReceiveEvent
     public void emptyFluidContainerItem(ActivateEvent event, EntityRef item, FluidContainerItemComponent fluidContainer) {
         CharacterComponent characterComponent = event.getInstigator().getComponent(CharacterComponent.class);
         if (fluidContainer.fluidType == null || characterComponent == null) {
             return;
         }
-        getPlacementPosition(event.getOrigin(), event.getDirection(), event.getInstigator(), characterComponent.interactionRange).ifPresent(pos -> {
+        getPlacementPosition(
+                event.getOrigin(), event.getDirection(), event.getInstigator(),
+                characterComponent.interactionRange).ifPresent(pos -> {
             Block liquid = fluidRegistry.getCorrespondingLiquid(fluidContainer.fluidType);
             if (liquid == null) {
                 return;

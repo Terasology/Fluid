@@ -1,15 +1,11 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
 import org.joml.Vector2i;
-import org.terasology.gestalt.assets.Asset;
-import org.terasology.gestalt.assets.ResourceUrn;
-import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -19,12 +15,15 @@ import org.terasology.engine.rendering.assets.texture.Texture;
 import org.terasology.engine.rendering.assets.texture.TextureUtil;
 import org.terasology.engine.utilities.Assets;
 import org.terasology.fluid.component.FluidContainerItemComponent;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.joml.geom.Rectanglei;
+import org.terasology.module.inventory.ui.GetItemTooltip;
+import org.terasology.module.inventory.ui.InventoryCellRendered;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.Color;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.module.inventory.ui.GetItemTooltip;
-import org.terasology.module.inventory.ui.InventoryCellRendered;
 
 import java.util.Optional;
 
@@ -97,27 +96,19 @@ public class FluidClientSystem extends BaseComponentSystem {
             String fluidType = fluidContainerItem.fluidType;
 
             // If there's already some fluid in this container.
+            ItemComponent itemComp = container.getComponent(ItemComponent.class);
             if (fluidType != null) {
-                if (fluidContainerItem.textureWithHole instanceof Asset) {
-                    ItemComponent itemComp = container.getComponent(ItemComponent.class);
-
-                    // Set the icon of this fluid container to show that it's filled.
-                    String iconUrn = FluidContainerAssetResolver.getFluidContainerUri(
-                            fluidContainerItem.textureWithHole.getUrn().toString(),
-                            fluidType,
-                            fluidContainerItem.fluidMinPerc.x, fluidContainerItem.fluidMinPerc.y,
-                            fluidContainerItem.fluidSizePerc.x, fluidContainerItem.fluidSizePerc.y);
-                    Optional<Texture> icon = assetManager.getAsset(iconUrn, Texture.class);
-                    itemComp.icon = icon.isPresent() ? icon.get() : fluidContainerItem.emptyTexture;
-
-                    container.saveComponent(itemComp);
-                }
+                // Set the icon of this fluid container to show that it's filled.
+                String iconUrn = FluidContainerAssetResolver.getFluidContainerUri(
+                        fluidContainerItem.textureWithHole.getUrn().toString(), fluidType,
+                        fluidContainerItem.fluidMinPerc.x, fluidContainerItem.fluidMinPerc.y,
+                        fluidContainerItem.fluidSizePerc.x, fluidContainerItem.fluidSizePerc.y);
+                Optional<Texture> icon = assetManager.getAsset(iconUrn, Texture.class);
+                itemComp.icon = icon.isPresent() ? icon.get() : fluidContainerItem.emptyTexture;
             } else {
-                ItemComponent itemComp = container.getComponent(ItemComponent.class);
                 itemComp.icon = fluidContainerItem.emptyTexture;
-
-                container.saveComponent(itemComp);
             }
+            container.saveComponent(itemComp);
         }
     }
 

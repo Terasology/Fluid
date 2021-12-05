@@ -1,45 +1,32 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.system;
 
 import com.google.common.collect.ImmutableSet;
 import org.joml.Vector2i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.gestalt.assets.AssetDataProducer;
-import org.terasology.gestalt.assets.ResourceUrn;
-import org.terasology.gestalt.assets.management.AssetManager;
-import org.terasology.gestalt.assets.module.annotations.RegisterAssetDataProducer;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.engine.rendering.assets.texture.Texture;
 import org.terasology.engine.rendering.assets.texture.TextureData;
 import org.terasology.engine.rendering.assets.texture.TextureRegionAsset;
 import org.terasology.engine.rendering.assets.texture.TextureUtil;
+import org.terasology.gestalt.assets.AssetDataProducer;
+import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.gestalt.assets.management.AssetManager;
+import org.terasology.gestalt.assets.module.annotations.RegisterAssetDataProducer;
 import org.terasology.gestalt.naming.Name;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * Generates TextureData for the asset system by combining fluid textures with fluid container item textures, or just by tiling fluid textures to a specified size.
+ * Generates TextureData for the asset system by combining fluid textures with fluid container item textures,
+ * or just by tiling fluid textures to a specified size.
  */
 @RegisterAssetDataProducer
 public class FluidContainerAssetResolver implements AssetDataProducer<TextureData> {
@@ -71,16 +58,12 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
      */
     public static String getFluidContainerUri(String textureUri, String fluidType, float minPercX, float minPercY,
                                               float sizePercX, float sizePercY) {
-        StringBuilder sb = new StringBuilder();
 
-        sb.append("Fluid:FluidItem(");
-        sb.append(textureUri);
-        sb.append(",").append(fluidType);
-        sb.append(",").append(minPercX).append(",").append(minPercY);
-        sb.append(",").append(sizePercX).append(",").append(sizePercY);
-        sb.append(")");
-
-        return sb.toString();
+        return "Fluid:FluidItem(" +
+                textureUri + "," + fluidType + "," +
+                minPercX + "," + minPercY + "," +
+                sizePercX + "," + sizePercY +
+                ")";
     }
 
     /**
@@ -90,13 +73,7 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
      * @return           The URI to the required texture
      */
     public static String getFluidBaseUri(String fluidType) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Fluid:FluidBase(");
-        sb.append(fluidType);
-        sb.append(")");
-
-        return sb.toString();
+        return "Fluid:FluidBase(" + fluidType + ")";
     }
 
     /**
@@ -140,10 +117,9 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
      *
      * @param urn          The URN from where data is to be fetched
      * @return             The asset data that has been fetched
-     * @throws IOException If an input or output error occured
      */
     @Override
-    public Optional<TextureData> getAssetData(ResourceUrn urn) throws IOException {
+    public Optional<TextureData> getAssetData(ResourceUrn urn) {
         final String assetName = urn.getResourceName().toString().toLowerCase();
         if (!FLUID_MODULE.equals(urn.getModuleName())
                 || !(assetName.startsWith("fluiditem(") || assetName.startsWith("fluidbase("))) {
@@ -160,7 +136,7 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
         String[] split = assetName.split("\\(");
 
         // Get the parameters from the URN.
-        String[] parameters = null;
+        String[] parameters;
 
         // If the URN's fragment name is non-empty, then that means this item is using a texture atlas.
         // Thus, the necessary information is contained in the resource name (specifically split[1]) and fragment name.
@@ -172,11 +148,10 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
             // the atlas (parameters[0]), and store it back into parameters[0].
             // Example: "woodandstone:items" + "#" + "WoodenBucket".
             parameters[0] = split[1] + "#" + parameters[0];
-        }
-        // Otherwise, if the URN's fragment name is empty, then that means this item is using individual textures.
-        // Thus, all the necessary is contained in the resource name.
-        else
-        {
+        } else {
+            // Otherwise, if the URN's fragment name is empty, then that means this item is using individual textures.
+            // Thus, all the necessary is contained in the resource name.
+
             // First, remove everything up to and including the left parenthesis in the string, and then split it up
             // using commas.
             parameters = urn.getResourceName().toString().split("\\(")[1].split(",");
@@ -184,12 +159,12 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
 
         // If the number of parameters is less than 6, return with empty.
         if (parameters.length != (isItem ? 6 : 1)) {
-            logger.warn("Unexpected number of tokens when trying to getAssetData for a fluid container's content: {}", parameters);
+            logger.warn("Unexpected number of tokens when trying to getAssetData for a fluid container's content: {}", (Object) parameters);
             return Optional.empty();
         }
 
         // Remove the extraneous right parenthesis from the end of the last parameter.
-        parameters[parameters.length-1] = parameters[parameters.length-1].substring(0, parameters[parameters.length-1].length() - 1);
+        parameters[parameters.length - 1] = parameters[parameters.length - 1].substring(0, parameters[parameters.length - 1].length() - 1);
 
         BufferedImage result;
         if (isItem) {
@@ -225,7 +200,8 @@ public class FluidContainerAssetResolver implements AssetDataProducer<TextureDat
                     for (int y = min.y; y < min.y + size.y; y += fluidHeight) {
                         int fluidTileWidth = Math.min(fluidWidth, size.x + min.x - x);
                         int fluidTileHeight = Math.min(fluidHeight, size.y + min.y - y);
-                        graphics.drawImage(fluidTexture, x, y, x + fluidTileWidth, y + fluidTileHeight, 0, 0, fluidTileWidth, fluidTileHeight, null);
+                        graphics.drawImage(fluidTexture, x, y, x + fluidTileWidth, y + fluidTileHeight,
+                                0, 0, fluidTileWidth, fluidTileHeight, null);
                     }
                 }
                 // Draw the container texture on top of the fluid
