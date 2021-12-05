@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluid.component;
 
+import com.google.common.base.Objects;
 import org.joml.Vector2f;
 import org.terasology.engine.network.Replicate;
 import org.terasology.engine.rendering.assets.texture.TextureRegionAsset;
@@ -49,29 +50,19 @@ public class FluidContainerItemComponent implements Component<FluidContainerItem
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         FluidContainerItemComponent that = (FluidContainerItemComponent) o;
+        return Float.compare(that.volume, volume) == 0
+                && Float.compare(that.maxVolume, maxVolume) == 0
+                && Objects.equal(fluidType, that.fluidType)
+                && Objects.equal(fluidMinPerc, that.fluidMinPerc)
+                && Objects.equal(fluidSizePerc, that.fluidSizePerc)
+                && Objects.equal(textureWithHole, that.textureWithHole)
+                && Objects.equal(emptyTexture, that.emptyTexture);
+    }
 
-        if (Float.compare(that.volume, volume) != 0) {
-            return false;
-        }
-        if (emptyTexture != null ? !emptyTexture.equals(that.emptyTexture) : that.emptyTexture != null) {
-            return false;
-        }
-        if (fluidMinPerc != null ? !fluidMinPerc.equals(that.fluidMinPerc) : that.fluidMinPerc != null) {
-            return false;
-        }
-        if (fluidSizePerc != null ? !fluidSizePerc.equals(that.fluidSizePerc) : that.fluidSizePerc != null) {
-            return false;
-        }
-        if (fluidType != null ? !fluidType.equals(that.fluidType) : that.fluidType != null) {
-            return false;
-        }
-        if (textureWithHole != null ? !textureWithHole.equals(that.textureWithHole) : that.textureWithHole != null) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(fluidType, volume, maxVolume, fluidMinPerc, fluidSizePerc, textureWithHole, emptyTexture);
     }
 
     @Override
